@@ -595,7 +595,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">10/09/2026 01:31</span>
+      Versión de la página<br><span class="mono" id="umVersion">10/09/2026 03:55</span>
     </div>
   </div>
 
@@ -982,6 +982,35 @@ function initials(name){
   if(parts.length >= 2) return (parts[0][0]+parts[1][0]).toUpperCase();
   const base = (parts[0]||'').split('@')[0];
   return base.slice(0,2).toUpperCase() || '?';
+}
+
+/* ============ GUARDAR UN ARCHIVO ============
+   En la APK el WebView no sabe descargar un blob por su cuenta: avisa a Android
+   y Android vuelve a leer el blob desde JavaScript. Para cuando eso pasaba, la
+   pagina ya habia hecho URL.revokeObjectURL y el blob ya no existia: el archivo
+   no llegaba nunca, pero el mensaje de "exportado" si aparecia. De ahi que se
+   viera "1,704 bienes exportados" y no hubiera ningun archivo.
+   Ahora, si existe el puente de Android, se le entrega el archivo directo (sin
+   blob de por medio, sin carrera posible). En un navegador normal se descarga
+   como siempre, pero el blob se libera un minuto despues y no al instante:
+   liberarlo enseguida cancela descargas que todavia no habian arrancado. */
+function guardarArchivo(blob, nombre){
+  const puente = window.AndroidDescargas;
+  if(puente && typeof puente.guardarBase64 === 'function'){
+    const lector = new FileReader();
+    lector.onloadend = function(){
+      try{ puente.guardarBase64(nombre, String(lector.result)); }
+      catch(e){ toast('No se pudo guardar el archivo.', true); }
+    };
+    lector.onerror = function(){ toast('No se pudo leer el archivo para guardarlo.', true); };
+    lector.readAsDataURL(blob);
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000);
 }
 
 /* ============ API ============ */
@@ -1870,12 +1899,7 @@ async function asisExportar(indice){
     }).join(','));
   });
   const blob = new Blob(['\uFEFF' + lineas.join('\r\n')], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'asistente_' + todayISO() + '.csv';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  guardarArchivo(blob, 'asistente_' + todayISO() + '.csv');
   toast(conteo > items.length
     ? ('Se exportaron ' + items.length + ' de ' + conteo + ' (tope de la exportacion).')
     : (items.length + (items.length === 1 ? ' bien exportado.' : ' bienes exportados.')));
@@ -2284,11 +2308,7 @@ function descargarCSV(items, nombreArchivo){
     }).join(','));
   });
   const blob = new Blob(['\uFEFF'+lines.join('\r\n')], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = nombreArchivo;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  guardarArchivo(blob, nombreArchivo);
 }
 
 function resumenFiltros(){
@@ -2477,11 +2497,7 @@ function descargarCSV(items, colsOrNombre, nombreArchivoParam){
     }).join(','));
   });
   const blob = new Blob(['﻿'+lines.join('\r\n')], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = nombreArchivo;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  guardarArchivo(blob, nombreArchivo);
 }
 
 
@@ -3312,11 +3328,7 @@ function descargarCSVDeprec(items, nombreArchivo){
     }).join(','));
   });
   const blob = new Blob(['\uFEFF'+lines.join('\r\n')], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = nombreArchivo;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  guardarArchivo(blob, nombreArchivo);
 }
 
 
@@ -4603,9 +4615,7 @@ async function exportarTraslados(){
       return /[",\n]/.test(v) ? '"'+v+'"' : v;
     }).join(',')));
     const blob = new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download=`bienes_trasladados_${todayISO()}.csv`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    guardarArchivo(blob, `bienes_trasladados_${todayISO()}.csv`);
     toast(`${items.length.toLocaleString('en-US')} bienes exportados.`);
   } finally { btn.disabled=false; btn.innerHTML=orig; }
 }
@@ -5725,12 +5735,7 @@ async function descargarRespaldo(){
     });
     const csv = '\uFEFF' + lines.join('\r\n');
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const hoy = todayISO();
-    a.href = url; a.download = `respaldo_activo_fijo_${hoy}.csv`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    guardarArchivo(blob, `respaldo_activo_fijo_${todayISO()}.csv`);
     toast(`Respaldo descargado: ${all.length.toLocaleString('en-US')} artículos.`);
   } finally {
     btn.disabled = false; btn.innerHTML = original;
