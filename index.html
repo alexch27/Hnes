@@ -595,7 +595,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 15:59</span>
+      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 16:46</span>
     </div>
   </div>
 
@@ -3932,9 +3932,19 @@ const FILTROS_NUMERO = [
   ['fValorAdqMin','valor_adq_min'], ['fValorAdqMax','valor_adq_max']
 ];
 
+/* Los dos selects de mes se esconden segun el ambito. Un control que no se ve
+   NO puede seguir filtrando: si no, al pasar a "Dados de baja" seguia aplicando
+   el mes de ingreso que habia quedado elegido y la lista salia vacia. */
+function filtroDeMesVisible(id){
+  const caja = document.getElementById(id === 'fMesAdq' ? 'cajaMesAdq' : 'cajaMesBaja');
+  return !!caja && caja.style.display !== 'none';
+}
+
 async function aplicarFiltrosAvanzados(){
   FILTROS_SELECT.forEach(par => {
     const s = document.getElementById(par[0]);
+    const esMes = par[0] === 'fMesAdq' || par[0] === 'fMesBaja';
+    if(esMes && !filtroDeMesVisible(par[0])){ delete filters[par[1]]; return; }
     if(s && s.value && s.value !== 'ALL') filters[par[1]] = s.value;
     else delete filters[par[1]];
   });
@@ -6256,8 +6266,13 @@ function pintarSelectsMes(){
     sa.value = guardado;
     if(sa.value !== guardado) sa.value = 'ALL';
   }
-  // El mes de ingreso solo tiene sentido sobre lo que esta activo.
+  // El mes de ingreso solo tiene sentido sobre lo que esta activo. Al esconderlo
+  // se borra el filtro: dejarlo puesto vaciaba la lista sin que se viera por que.
   if(cajaA) cajaA.style.display = (ambito === 'activos') ? '' : 'none';
+  if(ambito !== 'activos'){
+    delete filters.mes_adq;
+    if(sa) sa.value = 'ALL';
+  }
 
   const sb = document.getElementById('fMesBaja');
   const cajaB = document.getElementById('cajaMesBaja');
@@ -6275,6 +6290,10 @@ function pintarSelectsMes(){
   }
   if(lbl) lbl.textContent = ambito === 'trasladados' ? 'Mes del traslado' : 'Mes de la baja';
   if(cajaB) cajaB.style.display = (ambito === 'activos') ? 'none' : '';
+  if(ambito === 'activos'){
+    delete filters.mes_baja;
+    if(sb) sb.value = 'ALL';
+  }
 }
 
 /* Descargar, trasladar o imprimir no aplican a un bien que ya salio: se ocultan
