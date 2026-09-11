@@ -595,7 +595,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 16:46</span>
+      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 21:56</span>
     </div>
   </div>
 
@@ -973,7 +973,16 @@ let pollTimer = null;
 function esc(s){ if(s===null||s===undefined) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtMoney(n){ n=Number(n)||0; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtMoneyShort(n){ n=Number(n)||0; if(Math.abs(n)>=1000000) return '$'+(n/1000000).toFixed(2)+'M'; if(Math.abs(n)>=1000) return '$'+(n/1000).toFixed(1)+'K'; return '$'+n.toFixed(0); }
-function fmtDate(iso){ if(!iso) return ''; const p=iso.split('-'); if(p.length!==3) return iso; return p[2]+'/'+p[1]+'/'+p[0]; }
+/* Acepta una fecha suelta ('2026-09-09') y tambien una marca de tiempo completa
+   ('2026-09-09T17:47:31.08519+00:00'). Antes partia por los guiones sin mas, y
+   con una marca de tiempo el tercer pedazo se llevaba la hora entera: en la toma
+   fisica salia "09T17:47:31.08519+00:00/09/2026". */
+function fmtDate(iso){
+  if(!iso) return '';
+  const p = String(iso).slice(0, 10).split('-');
+  if(p.length !== 3) return iso;
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
 function fmtDateTime(iso){ if(!iso) return ''; const d=new Date(iso); return d.toLocaleDateString('es-SV',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('es-SV',{hour:'2-digit',minute:'2-digit'}); }
 function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function debounce(fn, ms){ let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a), ms); }; }
@@ -2863,7 +2872,7 @@ function loadToma(){
         <div class="row-card">
           <div class="u-body">
             <div class="u-name mono">${esc(t.unidad||'')}</div>
-            <div style="font-size:12px;color:#666;margin-top:2px;">${t.estado==='abierta' ? '<span class="badge">Abierta</span>' : '<span class="badge">Cerrada</span>'} &middot; Iniciada por ${esc(t.creado_por||'')} ${t.creado_at ? ('&middot; ' + fmtDate(t.creado_at)) : ''}</div>
+            <div style="font-size:12px;color:#666;margin-top:2px;">${t.estado==='abierta' ? '<span class="badge">Abierta</span>' : '<span class="badge">Cerrada</span>'} &middot; Iniciada por ${esc(t.creado_por||'')} ${t.creado_at ? ('&middot; ' + fmtDateTime(t.creado_at)) : ''}</div>
           </div>
           <div style="text-align:right;">
             <button class="btn btn-sm tomaAbrirBtn" data-id="${t.id}" data-estado="${esc(t.estado||'abierta')}">${t.estado==='abierta' ? 'Continuar' : 'Ver detalle'}</button>
