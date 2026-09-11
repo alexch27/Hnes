@@ -595,7 +595,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 21:56</span>
+      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 22:00</span>
     </div>
   </div>
 
@@ -2998,7 +2998,7 @@ async function abrirTomaDetalle(tomaId, estadoConocido){
     <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px;">
       <div class="form-field" style="flex:1;min-width:200px;margin:0;">
         <label>Código del bien</label>
-        <input type="text" id="tomaCodigoInput" placeholder="Escribe o escanea el código" autocomplete="off">
+        <input type="text" id="tomaCodigoInput" placeholder="0866-153-030-07-00117" inputmode="numeric" autocomplete="off">
       </div>
       <button class="btn" id="tomaEscanearBtn" title="Escanear con la cámara">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M7 8v8M10 8v8M13 8v8M17 8v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -3083,6 +3083,14 @@ async function abrirTomaDetalle(tomaId, estadoConocido){
   if(registrarBtn) registrarBtn.addEventListener('click', registrar);
   if(codigoInput){
     codigoInput.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); registrar(); } });
+    // Va poniendo los guiones sola mientras se teclea (4-3-3-2-5), igual que el
+    // buscador y la pantalla de depreciacion. Asi lo tecleado a mano queda con
+    // el mismo formato que lo escaneado.
+    codigoInput.addEventListener('input', ev=>{
+      const cursorAlFinal = ev.target.selectionStart === ev.target.value.length;
+      ev.target.value = formatearCodigoInventario(ev.target.value);
+      if(cursorAlFinal) ev.target.setSelectionRange(ev.target.value.length, ev.target.value.length);
+    });
     codigoInput.focus();
   }
   tomaPintarAviso(tomaId);
