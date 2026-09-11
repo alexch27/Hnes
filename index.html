@@ -595,7 +595,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">10/09/2026 03:55</span>
+      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 15:59</span>
     </div>
   </div>
 
@@ -641,10 +641,16 @@ a{color:inherit;}
               <label class="fs-tit">Estado</label>
               <div class="chip-group" id="chipEstado"></div>
             </div>
+            <div class="filtros-seccion" id="seccionAmbito" style="display:none;">
+              <label class="fs-tit">Movimiento</label>
+              <div class="chip-group" id="chipAmbito"></div>
+            </div>
             <div class="filtros-seccion">
               <label class="fs-tit">Detalle</label>
             </div>
             <div class="filtros-grid">
+              <div id="cajaMesAdq"><label>Mes de ingreso (adquisición)</label><select id="fMesAdq"></select></div>
+              <div id="cajaMesBaja" style="display:none;"><label id="lblMesBaja">Mes de la baja</label><select id="fMesBaja"></select></div>
               <div><label>Unidad / Dependencia</label><select id="fUnidad"></select></div>
               <div><label>Ubicación / Área</label><select id="fUbicacion"></select></div>
               <div><label>Marca</label><select id="fMarca"></select></div>
@@ -677,7 +683,7 @@ a{color:inherit;}
             <div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;">
               <button class="btn btn-sm" id="limpiarFiltros">Limpiar filtros</button>
               <button class="btn btn-sm btn-primary" id="aplicarFiltros">Aplicar</button>
-              <span style="font-size:11px;color:var(--ink-faint);margin-left:auto;">Se aplican solos al elegir · v2026-09-09</span>
+              <span style="font-size:11px;color:var(--ink-faint);margin-left:auto;">Se aplican solos al elegir</span>
             </div>
           </div>
         </div>
@@ -958,7 +964,7 @@ let session = null; // { token, email, nombre, rol }
 let currentView = 'inventario';
 let filters = {q:'', campo:'busqueda', reporte:'ALL', estado:'ALL', sort:'codigo_asc', page:1, pageSize:50,
                unidad:'ALL', ubicacion:'ALL', marca:'ALL', modelo:'ALL', fuente:'ALL', anio:'ALL', valor_min:'', valor_max:'',
-               valor_adq_min:'', valor_adq_max:''};
+               valor_adq_min:'', valor_adq_max:'', ambito:'activos'};
 let lastStats = null;
 let drawerMode = null, drawerItem = null;
 let pollTimer = null;
@@ -1254,7 +1260,7 @@ function switchView(id){
   refreshCurrentView();
 }
 function refreshCurrentView(){
-  if(currentView==='inventario') loadInventario();
+  if(currentView==='inventario'){ loadInventario(); initMovimientos(); }
   else if(currentView==='resumen') loadResumen();
   else if(currentView==='descargados') loadDescargados();
   else if(currentView==='traslados') loadTraslados();
@@ -2143,14 +2149,19 @@ async function loadInventario(){
   const myReq = ++inventarioReqId;
   const scroll = document.getElementById('listScroll');
   scroll.innerHTML = spinnerHTML();
-  const r = await apiInventario('list', {
+  const cuerpo = {
     q: filters.q, campo: filters.campo, estado: filters.estado, reporte: filters.reporte,
     sort: filters.sort, page: filters.page, pageSize: filters.pageSize,
     unidad: filters.unidad, ubicacion: filters.ubicacion, marca: filters.marca,
     modelo: filters.modelo, fuente: filters.fuente, anio: filters.anio,
     valor_min: filters.valor_min, valor_max: filters.valor_max,
-    valor_adq_min: filters.valor_adq_min, valor_adq_max: filters.valor_adq_max
-  });
+    valor_adq_min: filters.valor_adq_min, valor_adq_max: filters.valor_adq_max,
+    ambito: filters.ambito || 'activos', mes_adq: filters.mes_adq, mes_baja: filters.mes_baja
+  };
+  // Mientras no se toquen los filtros nuevos, la pantalla sigue usando la misma
+  // funcion de siempre; asi el camino de todos los dias no cambia en nada.
+  const r = usaMovimientos() ? await apiMovimientos('list', cuerpo)
+                             : await apiInventario('list', cuerpo);
   if(myReq !== inventarioReqId) return; // a newer request superseded this one
   if(!r.ok){ scroll.innerHTML = emptyStateHTML('No se pudo cargar', esc(r.error||'Intenta nuevamente.')); return; }
 
@@ -2336,9 +2347,12 @@ async function exportarInventario(soloSeleccion){
           unidad: filters.unidad, ubicacion: filters.ubicacion, marca: filters.marca,
           modelo: filters.modelo, fuente: filters.fuente, anio: filters.anio,
           valor_min: filters.valor_min, valor_max: filters.valor_max,
-          valor_adq_min: filters.valor_adq_min, valor_adq_max: filters.valor_adq_max, sort: filters.sort };
+          valor_adq_min: filters.valor_adq_min, valor_adq_max: filters.valor_adq_max, sort: filters.sort,
+          ambito: filters.ambito || 'activos', mes_adq: filters.mes_adq, mes_baja: filters.mes_baja };
 
-    const r = await apiInventario('export', payload);
+    const r = (!soloSeleccion && usaMovimientos())
+      ? await apiMovimientos('export', payload)
+      : await apiInventario('export', payload);
     if(!r.ok){ toast(r.error || 'No se pudo exportar.', true); return; }
     const items = r.items || [];
     if(items.length === 0){ toast('No hay artículos que coincidan con los filtros.', true); return; }
@@ -3910,7 +3924,8 @@ function cerrarEscaner(){
    por eso al elegir una marca o un modelo no pasaba nada. */
 const FILTROS_SELECT = [
   ['fUnidad','unidad'], ['fUbicacion','ubicacion'], ['fMarca','marca'],
-  ['fModelo','modelo'], ['fFuente','fuente'], ['fAnio','anio']
+  ['fModelo','modelo'], ['fFuente','fuente'], ['fAnio','anio'],
+  ['fMesAdq','mes_adq'], ['fMesBaja','mes_baja']
 ];
 const FILTROS_NUMERO = [
   ['fValorMin','valor_min'], ['fValorMax','valor_max'],
@@ -3950,7 +3965,11 @@ function limpiarFiltrosAvanzados(){
   filters = { q:'', campo: filters.campo || 'busqueda', reporte:'ALL', estado:'ALL',
               sort:'codigo_asc', page:1, pageSize: filters.pageSize || 50,
               unidad:'ALL', ubicacion:'ALL', marca:'ALL', modelo:'ALL', fuente:'ALL', anio:'ALL',
-              valor_min:'', valor_max:'', valor_adq_min:'', valor_adq_max:'' };
+              valor_min:'', valor_max:'', valor_adq_min:'', valor_adq_max:'',
+              ambito:'activos' };
+  try{ renderChipsAmbito(); }catch(e){}
+  try{ pintarSelectsMes(); }catch(e){}
+  try{ ajustarAccionesPorAmbito(); }catch(e){}
   try{ renderChips(); }catch(e){}
   try{ renderChipsCampo(); }catch(e){}
   loadInventario();
@@ -6127,6 +6146,154 @@ function cargaPintarResumen(file, r, descartadas){
     var lista = cargaListos.slice();
     if(esDesc) abrirDescargoDrawer(lista); else abrirTrasladoDrawer(lista);
   });
+}
+
+
+
+/* ============ MOVIMIENTOS: NUEVOS INGRESOS Y BAJAS ============
+   Dos filtros mas en Inventario:
+   - "Mes de ingreso": por FECHA DE ADQUISICION, que es la unica fecha real que
+     tiene la base. La fecha en que se creo el registro no sirve: casi todos los
+     bienes se cargaron el mismo dia y darian un solo mes con 24,933.
+   - "Movimiento" + "Mes de la baja": para ver lo que salio, separando descargos
+     de traslados, mes por mes. Se va actualizando solo a medida que se registran.
+   Viven en una funcion aparte del servidor ('movimientos') que devuelve lo mismo
+   que 'list', asi que la tabla, la paginacion y la exportacion no cambian. */
+const FN_MOV = SUPABASE_URL + '/functions/v1/movimientos';
+let mesesCache = null;
+
+async function apiMovimientos(accion, payload){
+  try{
+    const res = await fetch(FN_MOV, {
+      method:'POST',
+      headers:{'Content-Type':'application/json', 'x-session-token': session ? session.token : ''},
+      body: JSON.stringify(Object.assign({ accion: accion }, payload || {}))
+    });
+    return await res.json();
+  }catch(e){
+    return {ok:false, error:'No se pudo conectar con el servidor. Revisa tu conexión.'};
+  }
+}
+
+async function asegurarMeses(){
+  if(mesesCache) return mesesCache;
+  const r = await apiMovimientos('meses', {});
+  mesesCache = (r && r.ok) ? (r.meses || {}) : {};
+  return mesesCache;
+}
+
+const MESES_NOMBRE = ['enero','febrero','marzo','abril','mayo','junio',
+                      'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function nombreMes(ym){
+  const p = String(ym || '').split('-');
+  if(p.length !== 2) return String(ym || '');
+  const i = parseInt(p[1], 10) - 1;
+  return (MESES_NOMBRE[i] || p[1]) + ' ' + p[0];
+}
+
+/* ¿La consulta actual necesita la funcion de movimientos? Solo si se pidio ver
+   algo que no sea lo activo, o si se filtro por mes de ingreso. */
+function usaMovimientos(){
+  return (filters.ambito && filters.ambito !== 'activos') || !!filters.mes_adq;
+}
+
+function renderChipsAmbito(){
+  const caja = document.getElementById('seccionAmbito');
+  const grupo = document.getElementById('chipAmbito');
+  if(!caja || !grupo) return;
+  // El rol de consulta solo ve lo activo de sus areas: no se le ofrece.
+  if(!session || session.rol === 'consulta'){ caja.style.display = 'none'; return; }
+  caja.style.display = '';
+
+  const m = mesesCache || {};
+  const suma = function(lista){
+    return (lista || []).reduce(function(t, x){ return t + (Number(x.n) || 0); }, 0);
+  };
+  const activos = (lastStats && lastStats.total_items) || 0;
+  const opciones = [
+    ['activos', 'Activos', activos],
+    ['descargados', 'Dados de baja', suma(m.descargos)],
+    ['trasladados', 'Trasladados', suma(m.traslados)],
+  ];
+  const actual = filters.ambito || 'activos';
+  grupo.innerHTML = opciones.map(function(o){
+    return '<button class="chip ' + (actual === o[0] ? 'active' : '') + '" data-amb="' + o[0] + '">' +
+      esc(o[1]) + ' <span class="mono" style="opacity:.7">(' + (o[2] || 0).toLocaleString('en-US') + ')<'+'/span><'+'/button>';
+  }).join('');
+  grupo.querySelectorAll('.chip').forEach(function(el){
+    el.addEventListener('click', function(){
+      const nuevo = el.getAttribute('data-amb');
+      if(nuevo === (filters.ambito || 'activos')) return;
+      filters.ambito = nuevo;
+      // Los meses de una lista no sirven para la otra.
+      delete filters.mes_baja;
+      const sb = document.getElementById('fMesBaja');
+      if(sb) sb.value = 'ALL';
+      filters.page = 1;
+      limpiarSeleccion();
+      renderChipsAmbito();
+      pintarSelectsMes();
+      ajustarAccionesPorAmbito();
+      loadInventario();
+    });
+  });
+}
+
+/* Llena los dos selects de mes con los meses que de verdad tienen movimiento,
+   cada uno con su cantidad. */
+function pintarSelectsMes(){
+  const m = mesesCache || {};
+  const ambito = filters.ambito || 'activos';
+
+  const sa = document.getElementById('fMesAdq');
+  const cajaA = document.getElementById('cajaMesAdq');
+  if(sa){
+    const guardado = filters.mes_adq || 'ALL';
+    sa.innerHTML = '<option value="ALL">Todos<'+'/option>' + (m.adquisicion || []).map(function(x){
+      return '<option value="' + esc(x.mes) + '">' + esc(nombreMes(x.mes)) +
+             ' (' + (Number(x.n) || 0).toLocaleString('en-US') + ')<'+'/option>';
+    }).join('');
+    sa.value = guardado;
+    if(sa.value !== guardado) sa.value = 'ALL';
+  }
+  // El mes de ingreso solo tiene sentido sobre lo que esta activo.
+  if(cajaA) cajaA.style.display = (ambito === 'activos') ? '' : 'none';
+
+  const sb = document.getElementById('fMesBaja');
+  const cajaB = document.getElementById('cajaMesBaja');
+  const lbl = document.getElementById('lblMesBaja');
+  if(sb){
+    const lista = ambito === 'trasladados' ? (m.traslados || [])
+                : ambito === 'descargados' ? (m.descargos || []) : [];
+    const guardado = filters.mes_baja || 'ALL';
+    sb.innerHTML = '<option value="ALL">Todos<'+'/option>' + lista.map(function(x){
+      return '<option value="' + esc(x.mes) + '">' + esc(nombreMes(x.mes)) +
+             ' (' + (Number(x.n) || 0).toLocaleString('en-US') + ')<'+'/option>';
+    }).join('');
+    sb.value = guardado;
+    if(sb.value !== guardado) sb.value = 'ALL';
+  }
+  if(lbl) lbl.textContent = ambito === 'trasladados' ? 'Mes del traslado' : 'Mes de la baja';
+  if(cajaB) cajaB.style.display = (ambito === 'activos') ? 'none' : '';
+}
+
+/* Descargar, trasladar o imprimir no aplican a un bien que ya salio: se ocultan
+   esos botones mientras se este viendo bajas o traslados. */
+function ajustarAccionesPorAmbito(){
+  const activo = (filters.ambito || 'activos') === 'activos';
+  ['selDescargar','selTrasladar','selImprimir'].forEach(function(id){
+    const b = document.getElementById(id);
+    if(b) b.style.display = activo ? '' : 'none';
+  });
+}
+
+/* Se llama al entrar a Inventario: trae los meses y pinta los controles. */
+async function initMovimientos(){
+  if(!session || !session.token) return;
+  await asegurarMeses();
+  try{ renderChipsAmbito(); }catch(e){}
+  try{ pintarSelectsMes(); }catch(e){}
+  try{ ajustarAccionesPorAmbito(); }catch(e){}
 }
 
 
