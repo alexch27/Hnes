@@ -333,14 +333,18 @@ a{color:inherit;}
 .admin-scroll{flex:1;overflow-y:auto;padding:20px 24px 40px;}
 .user-card{
   background:var(--surface);border:1px solid var(--line);border-radius:10px;
-  padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
+  padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
 }
 .user-card .u-avatar{width:38px;height:38px;border-radius:50%;background:var(--primary-soft);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:0 0 auto;}
-.user-card .u-body{flex:1;min-width:0;}
+.user-card .u-body{flex:1 1 260px;min-width:220px;}
 .user-card .u-name{font-weight:600;font-size:14px;}
 .user-card .u-mail{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;overflow-wrap:anywhere;word-break:normal;}
 /* Los botones no deben aplastar el texto: en pantalla angosta bajan a su propia linea. */
-.user-card .u-acciones{display:flex;gap:8px;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end;}
+.user-card .u-acciones{display:flex;gap:8px;flex:0 1 auto;min-width:0;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
+/* Solicitudes de contrasena olvidada: el texto no se debe aplastar contra los botones. */
+.row-card.seg-sol{cursor:default;flex-wrap:wrap;}
+.row-card.seg-sol .u-body{flex:1 1 220px;min-width:190px;}
+.row-card.seg-sol .seg-sol-btns{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;justify-content:flex-end;}
 /* X para cerrar una respuesta del asistente */
 .asis-cerrar{position:absolute;top:8px;right:8px;width:26px;height:26px;line-height:1;
   border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink-faint);
@@ -526,7 +530,101 @@ a{color:inherit;}
         <span>Recordar mi correo en este dispositivo</span>
       </label>
       <button type="submit" class="btn btn-primary" id="loginBtn">Iniciar sesión</button>
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:12.5px;">
+        <a href="#" id="linkOlvide" style="color:var(--primary);text-decoration:none;">¿Olvidaste tu contraseña?</a>
+        <a href="#" id="linkCodigo" style="color:var(--ink-soft);text-decoration:none;">Ya tengo un código</a>
+      </div>
     </form>
+  </div>
+
+  <!-- Paso 2 del ingreso: el código del teléfono -->
+  <div class="login-card" id="mfaCard" style="display:none;">
+    <div class="li-head">
+      <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+      </svg>
+      <div class="li-title">VERIFICACIÓN</div>
+      <div class="li-sub">Escribí el código de tu teléfono</div>
+    </div>
+    <div class="err-box" id="mfaErr"></div>
+    <form id="mfaForm" method="post" action="#">
+      <div class="form-field">
+        <label for="mfaCodigo">Código de 6 dígitos</label>
+        <input type="text" id="mfaCodigo" inputmode="numeric" autocomplete="one-time-code"
+               autocapitalize="characters" autocorrect="off" spellcheck="false"
+               placeholder="000000" style="text-align:center;letter-spacing:4px;font-size:20px;">
+        <div class="hint">Si no tenés el teléfono a mano, escribí acá uno de tus códigos de respaldo.</div>
+      </div>
+      <button type="submit" class="btn btn-primary" id="mfaBtn">Verificar</button>
+      <div style="margin-top:12px;font-size:12.5px;">
+        <a href="#" id="mfaVolver" style="color:var(--ink-soft);text-decoration:none;">← Volver</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Olvidé mi contraseña -->
+  <div class="login-card" id="olvideCard" style="display:none;">
+    <div class="li-head">
+      <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+      </svg>
+      <div class="li-title">RECUPERAR ACCESO</div>
+    </div>
+    <div id="olvideCuerpo">
+      <div class="info-note" style="margin-bottom:14px;">
+        Escribí tu correo. El administrador va a ver tu solicitud y te va a entregar
+        un código para poner una contraseña nueva.
+      </div>
+      <form id="olvideForm" method="post" action="#">
+        <div class="form-field">
+          <label for="olvideEmail">Correo institucional</label>
+          <input type="email" id="olvideEmail" autocapitalize="none" autocorrect="off"
+                 spellcheck="false" inputmode="email" placeholder="nombre.apellido@salud.gob.sv">
+        </div>
+        <button type="submit" class="btn btn-primary" id="olvideBtn">Enviar solicitud</button>
+      </form>
+    </div>
+    <div style="margin-top:12px;font-size:12.5px;">
+      <a href="#" class="segVolverLogin" style="color:var(--ink-soft);text-decoration:none;">← Volver</a>
+    </div>
+  </div>
+
+  <!-- Ya tengo un código de reinicio -->
+  <div class="login-card" id="codigoCard" style="display:none;">
+    <div class="li-head">
+      <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+      </svg>
+      <div class="li-title">NUEVA CONTRASEÑA</div>
+    </div>
+    <div class="err-box" id="codErr"></div>
+    <div id="codCuerpo">
+      <form id="codForm" method="post" action="#">
+        <div class="form-field">
+          <label for="codEmail">Correo institucional</label>
+          <input type="email" id="codEmail" autocapitalize="none" autocorrect="off"
+                 spellcheck="false" inputmode="email" placeholder="nombre.apellido@salud.gob.sv">
+        </div>
+        <div class="form-field">
+          <label for="codCodigo">Código que te dieron</label>
+          <input type="text" id="codCodigo" autocapitalize="characters" autocorrect="off"
+                 spellcheck="false" placeholder="ABCD-1234" style="letter-spacing:2px;">
+        </div>
+        <div class="form-field">
+          <label for="codNueva">Contraseña nueva</label>
+          <input type="password" id="codNueva" autocomplete="new-password" placeholder="••••••••">
+          <div class="hint">Al menos 8 caracteres, con una mayúscula, una minúscula y un número.</div>
+        </div>
+        <div class="form-field">
+          <label for="codNueva2">Repetí la contraseña nueva</label>
+          <input type="password" id="codNueva2" autocomplete="new-password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" id="codBtn">Guardar contraseña</button>
+      </form>
+    </div>
+    <div style="margin-top:12px;font-size:12.5px;">
+      <a href="#" class="segVolverLogin" style="color:var(--ink-soft);text-decoration:none;">← Volver</a>
+    </div>
   </div>
   <div class="login-card" id="deniedCard" style="display:none;">
     <div class="li-head">
@@ -580,6 +678,10 @@ a{color:inherit;}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 7a4 4 0 1 1-3.9 5H7v3H4v-3H2.1A4 4 0 0 1 6 7a4 4 0 0 1 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16.5" cy="8.5" r="1.2" fill="currentColor"/></svg>
       Cambiar mi contraseña
     </button>
+    <button id="umSeguridad">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.5 12.2l1.8 1.8 3.4-3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Verificación en dos pasos
+    </button>
     <button id="umChangeOther">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
       Cambiar contraseña de otro
@@ -595,7 +697,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">11/09/2026 22:00</span>
+      Versión de la página<br><span class="mono" id="umVersion">15/09/2026 17:30</span>
     </div>
   </div>
 
@@ -883,6 +985,7 @@ a{color:inherit;}
                 Crear usuario
               </button>
             </div>
+            <div id="segAdminCaja"></div>
             <div id="usersList"></div>
           </div>
         </div>
@@ -1160,11 +1263,14 @@ async function handleLogin(e){
       errBox.className = 'err-box show';
       return;
     }
-    session = { token: r.token, email: r.user.email, nombre: r.user.nombre, rol: r.user.rol };
-    guardarSesion(session);
     if(document.getElementById('recordarCorreo').checked) guardarCorreoRecordado(email);
     else olvidarCorreo();
+    // Con verificación en dos pasos, la contraseña sola no abre sesión.
+    if(r.mfa_requerido){ mfaPedirCodigo(r.desafio); return; }
+    session = { token: r.token, email: r.user.email, nombre: r.user.nombre, rol: r.user.rol };
+    guardarSesion(session);
     await enterApp();
+    if(r.debe_configurar_mfa) setTimeout(abrirSeguridadDrawer, 400);
   }catch(err){
     errBox.textContent = 'No se pudo conectar con el servidor.';
     errBox.className = 'err-box show';
@@ -1183,6 +1289,9 @@ async function doLogout(silent){
   if(menu){ menu.classList.remove('show'); document.getElementById('userChip').classList.remove('open'); }
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
+  // Al salir se vuelve siempre a la tarjeta de ingreso, nunca al paso del código.
+  mfaDesafio = null;
+  try{ loginMostrar('loginCard'); }catch(e){}
   document.getElementById('loginCard').style.display = 'block';
   document.getElementById('deniedCard').style.display = 'none';
   document.getElementById('loginForm').reset();
@@ -4703,10 +4812,17 @@ async function loadAuditoria(){
 async function loadUsuarios(){
   const el = document.getElementById('usersList');
   el.innerHTML = spinnerHTML();
-  const [r, rp] = await Promise.all([
+  const [r, rp, rs] = await Promise.all([
     apiInventario('users', {}),
     apiCarga('permisos', {}),
+    apiSeguridad('admin_panel', {}),
   ]);
+  // Estado de la verificación en dos pasos, por correo.
+  const mfaPor = {};
+  if(rs && rs.ok) (rs.usuarios || []).forEach(function(x){
+    mfaPor[x.email] = { activo: x.mfa_activo === true, obligatorio: x.mfa_obligatorio === true };
+  });
+  segPanelAdmin();
   if(!r.ok){ el.innerHTML = emptyStateHTML('No se pudo cargar', esc(r.error||'')); return; }
   const users = r.users || [];
   // Quien tiene habilitado "Cargar desde archivo", por correo.
@@ -4728,6 +4844,15 @@ async function loadUsuarios(){
         ${rolAreas?`<div class="u-meta">Áreas: ${rolAreas}</div>`:''}
         ${rolUbic?`<div class="u-meta">Ubicaciones: ${rolUbic}</div>`:''}
         <div class="u-meta">${u.last_login?('Último ingreso: '+fmtDateTime(u.last_login)):'Nunca ha ingresado'}</div>
+        <div class="u-meta">Verificación en dos pasos: ${
+          (function(m){
+            if(!m) return 'sin dato';
+            if(m.activo && m.obligatorio) return '<b style="color:var(--primary);">activada</b> · obligatoria';
+            if(m.activo) return '<b style="color:var(--primary);">activada</b>';
+            if(m.obligatorio) return '<b style="color:var(--amber);">exigida, sin configurar</b>';
+            return 'no activada';
+          })(mfaPor[u.email])
+        }</div>
         <div class="u-meta">Cargar desde archivo: ${
           u.rol==='admin' ? '<b>sí</b> (los administradores siempre)'
           : u.rol==='consulta' ? 'no aplica (cuenta de solo lectura)'
@@ -4735,6 +4860,8 @@ async function loadUsuarios(){
         }</div>
       </div>
       <div class="u-acciones">
+        ${u.email !== session.email ? `<button class="btn btn-sm mfa-exigir-btn" data-email="${esc(u.email)}" data-on="${(mfaPor[u.email]&&mfaPor[u.email].obligatorio)?'1':'0'}">${(mfaPor[u.email]&&mfaPor[u.email].obligatorio)?'No exigir 2 pasos':'Exigir 2 pasos'}</button>` : ''}
+        ${(mfaPor[u.email]&&mfaPor[u.email].activo) ? `<button class="btn btn-sm mfa-quitar-btn" data-email="${esc(u.email)}" data-nombre="${esc(u.nombre||u.email)}" style="color:var(--rust);border-color:#e7cfc6;">Perdió el teléfono</button>` : ''}
         ${u.rol==='usuario' ? `<button class="btn btn-sm carga-btn" data-email="${esc(u.email)}" data-nombre="${esc(u.nombre||u.email)}" data-on="${cargaPor[u.email]?'1':'0'}">${cargaPor[u.email]?'Quitar carga desde archivo':'Permitir carga desde archivo'}</button>` : ''}
         ${locked?`<button class="btn btn-sm unlock-btn" data-email="${esc(u.email)}">Desbloquear</button>`:''}
         <button class="btn btn-sm btn-primary pw-btn" data-email="${esc(u.email)}" data-nombre="${esc(u.nombre||u.email)}">Cambiar contraseña</button>
@@ -4750,6 +4877,25 @@ async function loadUsuarios(){
     abrirEditarRol(b.getAttribute('data-email'), b.getAttribute('data-nombre'), b.getAttribute('data-rol'), (b.getAttribute('data-areas')||'').split(',').filter(Boolean), (b.getAttribute('data-ubicaciones')||'').split(',').filter(Boolean))));
   el.querySelectorAll('.pw-btn').forEach(b=>b.addEventListener('click',()=>
     openPasswordDrawer(b.getAttribute('data-email'), b.getAttribute('data-nombre'))));
+  el.querySelectorAll('.mfa-exigir-btn').forEach(b=>b.addEventListener('click', async ()=>{
+    const encender = b.getAttribute('data-on') !== '1';
+    b.disabled = true; const antes = b.textContent; b.textContent = '…';
+    const r2 = await apiSeguridad('admin_exigir_mfa', { email: b.getAttribute('data-email'), obligatorio: encender });
+    if(r2 && r2.ok){ toast(encender ? 'Ahora se le exige la verificación en dos pasos.' : 'Ya no se le exige.'); loadUsuarios(); }
+    else { toast((r2 && r2.error) || 'No se pudo cambiar.', true); b.disabled = false; b.textContent = antes; }
+  }));
+  el.querySelectorAll('.mfa-quitar-btn').forEach(b=>b.addEventListener('click', async ()=>{
+    // Dos toques: quitarle el segundo factor a alguien le baja la protección.
+    if(b.getAttribute('data-confirmar') !== '1'){
+      b.setAttribute('data-confirmar','1'); b.textContent = '¿Quitarle los 2 pasos?';
+      setTimeout(function(){ if(b.getAttribute('data-confirmar')==='1'){ b.removeAttribute('data-confirmar'); b.textContent='Perdió el teléfono'; } }, 4000);
+      return;
+    }
+    b.disabled = true; b.textContent = '…';
+    const r2 = await apiSeguridad('admin_quitar_mfa', { email: b.getAttribute('data-email') });
+    if(r2 && r2.ok){ toast(b.getAttribute('data-nombre') + ' puede volver a configurarla desde cero.'); loadUsuarios(); }
+    else { toast((r2 && r2.error) || 'No se pudo.', true); b.disabled = false; b.textContent = 'Perdió el teléfono'; }
+  }));
   el.querySelectorAll('.carga-btn').forEach(b=>b.addEventListener('click', async ()=>{
     const encender = b.getAttribute('data-on') !== '1';
     b.disabled = true; const antes = b.textContent; b.textContent = '…';
@@ -5803,6 +5949,33 @@ function startPolling(){
 /* ============ INIT ============ */
 async function init(){
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
+  // Segundo factor y recuperación de contraseña
+  document.getElementById('mfaForm').addEventListener('submit', mfaVerificar);
+  document.getElementById('olvideForm').addEventListener('submit', olvidePedir);
+  document.getElementById('codForm').addEventListener('submit', codigoUsar);
+  document.getElementById('linkOlvide').addEventListener('click', function(e){
+    e.preventDefault();
+    const c = document.getElementById('loginEmail').value.trim();
+    if(c) document.getElementById('olvideEmail').value = c;
+    loginMostrar('olvideCard');
+  });
+  document.getElementById('linkCodigo').addEventListener('click', function(e){
+    e.preventDefault();
+    const c = document.getElementById('loginEmail').value.trim();
+    if(c) document.getElementById('codEmail').value = c;
+    loginMostrar('codigoCard');
+  });
+  document.getElementById('mfaVolver').addEventListener('click', function(e){
+    e.preventDefault(); mfaDesafio = null; loginMostrar('loginCard');
+  });
+  document.querySelectorAll('.segVolverLogin').forEach(function(a){
+    a.addEventListener('click', function(e){ e.preventDefault(); loginMostrar('loginCard'); });
+  });
+  document.getElementById('umSeguridad').addEventListener('click', function(){
+    document.getElementById('userMenu').classList.remove('show');
+    document.getElementById('userChip').classList.remove('open');
+    abrirSeguridadDrawer();
+  });
   // Selección múltiple y descargo
   document.getElementById('selAllPage').addEventListener('change', e=>{
     if(e.target.checked) paginaActual.forEach(c=>seleccionados.add(c));
@@ -6330,6 +6503,384 @@ async function initMovimientos(){
   try{ renderChipsAmbito(); }catch(e){}
   try{ pintarSelectsMes(); }catch(e){}
   try{ ajustarAccionesPorAmbito(); }catch(e){}
+}
+
+
+
+/* ============ SEGURIDAD: SEGUNDO FACTOR Y RECUPERACION ============
+   - Segundo factor con app autenticadora (Google/Microsoft Authenticator...).
+     El telefono y el sistema comparten una semilla y cada uno calcula el mismo
+     codigo de 6 digitos cada 30 segundos. No viaja nada por correo ni por SMS.
+   - Recuperacion sin correo: el usuario pide el reinicio desde la pantalla de
+     entrar, el admin lo ve en Usuarios y genera un codigo de un solo uso que le
+     entrega por el medio que quiera. */
+const FN_SEG = SUPABASE_URL + '/functions/v1/seguridad';
+let mfaDesafio = null;      // vive solo entre la contraseña y el codigo
+let mfaSecretoTmp = null;   // semilla mientras se esta configurando
+
+async function apiSeguridad(accion, payload){
+  try{
+    const res = await fetch(FN_SEG, {
+      method:'POST',
+      headers:{'Content-Type':'application/json', 'x-session-token': session ? session.token : ''},
+      body: JSON.stringify(Object.assign({ accion: accion }, payload || {}))
+    });
+    return await res.json();
+  }catch(e){
+    return {ok:false, error:'No se pudo conectar con el servidor. Revisa tu conexión.'};
+  }
+}
+
+/* ---------- pantalla de ingreso: mostrar una tarjeta a la vez ---------- */
+function loginMostrar(cual){
+  ['loginCard','mfaCard','olvideCard','codigoCard'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.style.display = (id === cual) ? '' : 'none';
+  });
+}
+function segError(idCaja, mensaje){
+  const el = document.getElementById(idCaja);
+  if(!el) return;
+  el.textContent = mensaje || '';
+  el.className = mensaje ? 'err-box show' : 'err-box';
+}
+
+/* ---------- paso 2 del ingreso: el codigo del telefono ---------- */
+function mfaPedirCodigo(desafio){
+  mfaDesafio = desafio;
+  segError('mfaErr', '');
+  const inp = document.getElementById('mfaCodigo');
+  if(inp) inp.value = '';
+  loginMostrar('mfaCard');
+  if(inp) setTimeout(function(){ inp.focus(); }, 60);
+}
+
+async function mfaVerificar(e){
+  if(e) e.preventDefault();
+  const codigo = (document.getElementById('mfaCodigo').value || '').trim();
+  if(!codigo) return;
+  const btn = document.getElementById('mfaBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Verificando…';
+  segError('mfaErr', '');
+  try{
+    const r = await apiAuth('login_mfa', { desafio: mfaDesafio, codigo: codigo });
+    if(!r.ok){
+      segError('mfaErr', r.error || 'No se pudo verificar.');
+      if(/expir|empezar/i.test(r.error || '')){ mfaDesafio = null; setTimeout(function(){ loginMostrar('loginCard'); }, 2500); }
+      return;
+    }
+    mfaDesafio = null;
+    session = { token: r.token, email: r.user.email, nombre: r.user.nombre, rol: r.user.rol };
+    guardarSesion(session);
+    if(r.uso_respaldo){
+      toast('Entraste con un código de respaldo. Te quedan ' + (r.respaldo_restantes || 0) + '.');
+    }
+    await enterApp();
+    if(r.debe_configurar_mfa) setTimeout(abrirSeguridadDrawer, 400);
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+/* ---------- olvide mi contraseña ---------- */
+async function olvidePedir(e){
+  if(e) e.preventDefault();
+  const email = (document.getElementById('olvideEmail').value || '').trim().toLowerCase();
+  if(!email) return;
+  const btn = document.getElementById('olvideBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enviando…';
+  try{
+    await apiSeguridad('reset_solicitar', { email: email });
+    // Se contesta siempre lo mismo, exista o no la cuenta.
+    document.getElementById('olvideCuerpo').innerHTML =
+      '<div class="info-note">Listo. Si esa cuenta existe, el administrador va a ver tu solicitud ' +
+      'y te va a entregar un código para poner una contraseña nueva.<br><br>' +
+      'Cuando lo tengas, volvé acá y tocá <b>"Ya tengo un código"<'+'/b>.<'+'/div>';
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+async function codigoUsar(e){
+  if(e) e.preventDefault();
+  const email = (document.getElementById('codEmail').value || '').trim().toLowerCase();
+  const codigo = (document.getElementById('codCodigo').value || '').trim();
+  const nueva = document.getElementById('codNueva').value;
+  const repetir = document.getElementById('codNueva2').value;
+  segError('codErr', '');
+  if(nueva !== repetir){ segError('codErr', 'Las dos contraseñas no coinciden.'); return; }
+  const btn = document.getElementById('codBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Guardando…';
+  try{
+    const r = await apiSeguridad('reset_usar', { email: email, codigo: codigo, nueva: nueva });
+    if(!r.ok){ segError('codErr', r.error || 'No se pudo cambiar la contraseña.'); return; }
+    document.getElementById('codCuerpo').innerHTML =
+      '<div class="info-note">Tu contraseña quedó cambiada. Ya podés entrar con ella.<'+'/div>';
+    setTimeout(function(){ loginMostrar('loginCard'); }, 2500);
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+/* ---------- configurar el segundo factor (usuario) ---------- */
+async function abrirSeguridadDrawer(){
+  drawerMode = 'seguridad'; drawerItem = null;
+  document.getElementById('drawerTitle').textContent = 'Verificación en dos pasos';
+  document.getElementById('drawerBody').innerHTML = spinnerHTML();
+  document.getElementById('drawerFoot').innerHTML = '';
+  showDrawer();
+  const est = await apiSeguridad('estado', {});
+  if(!est.ok){
+    document.getElementById('drawerBody').innerHTML =
+      '<div class="info-note">' + esc(est.error || 'No se pudo cargar.') + '<'+'/div>';
+    return;
+  }
+  if(est.activo) segPintarActivo(est); else segPintarInactivo(est);
+}
+
+function segPintarInactivo(est){
+  document.getElementById('drawerBody').innerHTML =
+    (est.obligatorio ? '<div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:14px;">' +
+      'El administrador dejó la verificación en dos pasos como <b>obligatoria<'+'/b> para tu cuenta.<'+'/div>' : '') +
+    '<div class="info-note" style="margin-bottom:16px;">' +
+    'Con esto, además de tu contraseña vas a necesitar un código de 6 dígitos que muestra una app en tu teléfono. ' +
+    'Si alguien llegara a saber tu contraseña, igual no podría entrar.<br><br>' +
+    'Sirve <b>Google Authenticator<'+'/b>, <b>Microsoft Authenticator<'+'/b> o cualquiera parecida. ' +
+    'No necesita internet ni saldo.<'+'/div>' +
+    '<div class="form-field"><label>Confirmá tu contraseña para empezar *<'+'/label>' +
+    '<input type="password" id="segPw" autocomplete="current-password" placeholder="••••••••"><'+'/div>' +
+    '<div class="err-box" id="segErr"><'+'/div>';
+  document.getElementById('drawerFoot').innerHTML =
+    '<button class="btn" id="segCancel" style="flex:1;">Cancelar<'+'/button>' +
+    '<button class="btn btn-primary" id="segIniciar" style="flex:1.4;">Continuar<'+'/button>';
+  document.getElementById('segCancel').addEventListener('click', closeDrawer);
+  document.getElementById('segIniciar').addEventListener('click', segIniciar);
+  const pw = document.getElementById('segPw');
+  pw.addEventListener('keydown', function(ev){ if(ev.key === 'Enter'){ ev.preventDefault(); segIniciar(); } });
+  setTimeout(function(){ pw.focus(); }, 60);
+}
+
+async function segIniciar(){
+  const pw = document.getElementById('segPw').value;
+  if(!pw) return;
+  const btn = document.getElementById('segIniciar');
+  btn.disabled = true; btn.textContent = 'Verificando…';
+  const r = await apiSeguridad('mfa_iniciar', { password: pw });
+  btn.disabled = false; btn.textContent = 'Continuar';
+  if(!r.ok){ segError('segErr', r.error || 'No se pudo.'); return; }
+  mfaSecretoTmp = r.secreto;
+  segPintarQR(r);
+}
+
+/* El QR se dibuja con una librería chica que se baja al momento. Si no llega,
+   igual se puede configurar escribiendo la clave a mano en la app. */
+function segCargarQR(){
+  return new Promise(function(resolve){
+    if(window.qrcode) return resolve(true);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+    s.onload = function(){ resolve(!!window.qrcode); };
+    s.onerror = function(){ resolve(false); };
+    document.head.appendChild(s);
+    setTimeout(function(){ resolve(!!window.qrcode); }, 6000);
+  });
+}
+
+async function segPintarQR(r){
+  const secretoLegible = String(r.secreto || '').replace(/(.{4})/g, '$1 ').trim();
+  document.getElementById('drawerBody').innerHTML =
+    '<div class="info-note" style="margin-bottom:14px;">' +
+    '<b>1.<'+'/b> Abrí la app autenticadora en tu teléfono y elegí <b>agregar cuenta<'+'/b>.<br>' +
+    '<b>2.<'+'/b> Escaneá este código.<br>' +
+    '<b>3.<'+'/b> Escribí abajo el número de 6 dígitos que te muestre.<'+'/div>' +
+    '<div id="segQR" style="display:flex;justify-content:center;padding:14px;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;min-height:180px;align-items:center;">' +
+    spinnerHTML() + '<'+'/div>' +
+    '<div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;">' +
+    '¿No podés escanear? En la app elegí <b>escribir clave manualmente<'+'/b> y poné esta:<br>' +
+    '<span class="mono" style="font-size:13px;letter-spacing:.5px;user-select:all;">' + esc(secretoLegible) + '<'+'/span><'+'/div>' +
+    '<div class="form-field"><label>Código de 6 dígitos *<'+'/label>' +
+    '<input type="text" id="segCodigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000"><'+'/div>' +
+    '<div class="err-box" id="segErr"><'+'/div>';
+  document.getElementById('drawerFoot').innerHTML =
+    '<button class="btn" id="segCancel" style="flex:1;">Cancelar<'+'/button>' +
+    '<button class="btn btn-primary" id="segActivar" style="flex:1.4;">Activar<'+'/button>';
+  document.getElementById('segCancel').addEventListener('click', closeDrawer);
+  document.getElementById('segActivar').addEventListener('click', segActivar);
+  const c = document.getElementById('segCodigo');
+  c.addEventListener('keydown', function(ev){ if(ev.key === 'Enter'){ ev.preventDefault(); segActivar(); } });
+  setTimeout(function(){ c.focus(); }, 60);
+
+  const hay = await segCargarQR();
+  const caja = document.getElementById('segQR');
+  if(!caja) return;
+  if(hay){
+    try{
+      const qr = window.qrcode(0, 'M');
+      qr.addData(r.otpauth);
+      qr.make();
+      caja.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2 });
+      const svg = caja.querySelector('svg');
+      if(svg){ svg.style.width = '190px'; svg.style.height = '190px'; }
+    }catch(e){
+      caja.innerHTML = '<div style="font-size:12.5px;color:var(--ink-soft);text-align:center;">No se pudo dibujar el código.<br>Usá la clave escrita de abajo.<'+'/div>';
+    }
+  } else {
+    caja.innerHTML = '<div style="font-size:12.5px;color:var(--ink-soft);text-align:center;">No se pudo cargar el dibujo del código.<br>Usá la clave escrita de abajo, funciona igual.<'+'/div>';
+  }
+}
+
+async function segActivar(){
+  const codigo = (document.getElementById('segCodigo').value || '').trim();
+  if(!codigo) return;
+  const btn = document.getElementById('segActivar');
+  btn.disabled = true; btn.textContent = 'Activando…';
+  const r = await apiSeguridad('mfa_activar', { codigo: codigo });
+  btn.disabled = false; btn.textContent = 'Activar';
+  if(!r.ok){ segError('segErr', r.error || 'No se pudo activar.'); return; }
+  segPintarRespaldo(r.respaldo || [], true);
+}
+
+/* Los codigos de respaldo se muestran UNA sola vez. */
+function segPintarRespaldo(codigos, reciénActivado){
+  document.getElementById('drawerTitle').textContent = 'Códigos de respaldo';
+  document.getElementById('drawerBody').innerHTML =
+    (reciénActivado ? '<div class="info-note" style="margin-bottom:14px;">La verificación en dos pasos quedó <b>activada<'+'/b>.<'+'/div>' : '') +
+    '<div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:14px;">' +
+    '<b>Guardá estos códigos ahora.<'+'/b> Son tu forma de entrar si perdés el teléfono. ' +
+    'Cada uno sirve una sola vez y <b>no se van a volver a mostrar<'+'/b>.<'+'/div>' +
+    '<div class="mono" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;background:var(--surface-alt);border-radius:10px;font-size:14px;letter-spacing:1px;">' +
+    codigos.map(function(c){ return '<div>' + esc(c) + '<'+'/div>'; }).join('') + '<'+'/div>';
+  document.getElementById('drawerFoot').innerHTML =
+    '<button class="btn" id="segCopiar" style="flex:1;">Copiar<'+'/button>' +
+    '<button class="btn" id="segDescargar" style="flex:1;">Descargar<'+'/button>' +
+    '<button class="btn btn-primary" id="segListo" style="flex:1;">Ya los guardé<'+'/button>';
+  const texto = 'Códigos de respaldo — Activo Fijo HNES\n' +
+    'Cuenta: ' + (session ? session.email : '') + '\n' +
+    'Generados: ' + new Date().toLocaleString('es-SV') + '\n' +
+    'Cada código sirve UNA sola vez.\n\n' + codigos.join('\n') + '\n';
+  document.getElementById('segCopiar').addEventListener('click', function(){
+    try{ navigator.clipboard.writeText(texto); toast('Códigos copiados.'); }
+    catch(e){ toast('No se pudieron copiar. Descargalos o anotalos.', true); }
+  });
+  document.getElementById('segDescargar').addEventListener('click', function(){
+    guardarArchivo(new Blob([texto], {type:'text/plain;charset=utf-8;'}),
+                   'codigos_respaldo_activo_fijo.txt');
+  });
+  document.getElementById('segListo').addEventListener('click', closeDrawer);
+}
+
+function segPintarActivo(est){
+  document.getElementById('drawerBody').innerHTML =
+    '<div class="info-note" style="margin-bottom:14px;">' +
+    'La verificación en dos pasos está <b style="color:var(--primary);">activada<'+'/b> en tu cuenta.' +
+    (est.obligatorio ? '<br>El administrador la dejó como <b>obligatoria<'+'/b>, así que no se puede desactivar.' : '') +
+    '<br><br>Te quedan <b>' + (est.respaldo_restantes || 0) + '<'+'/b> códigos de respaldo sin usar.<'+'/div>' +
+    '<div class="form-field"><label>Código de 6 dígitos de tu app *<'+'/label>' +
+    '<input type="text" id="segCodigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000"><'+'/div>' +
+    (est.obligatorio ? '' :
+      '<div class="form-field"><label>Contraseña (solo para desactivar)<'+'/label>' +
+      '<input type="password" id="segPw" autocomplete="current-password" placeholder="••••••••"><'+'/div>') +
+    '<div class="err-box" id="segErr"><'+'/div>';
+  document.getElementById('drawerFoot').innerHTML =
+    '<button class="btn" id="segCancel" style="flex:1;">Cerrar<'+'/button>' +
+    '<button class="btn" id="segNuevos" style="flex:1.3;">Nuevos códigos de respaldo<'+'/button>' +
+    (est.obligatorio ? '' :
+      '<button class="btn btn-danger" id="segQuitar" style="flex:1;">Desactivar<'+'/button>');
+  document.getElementById('segCancel').addEventListener('click', closeDrawer);
+  document.getElementById('segNuevos').addEventListener('click', async function(){
+    const codigo = (document.getElementById('segCodigo').value || '').trim();
+    if(!codigo){ segError('segErr', 'Escribí el código de tu app.'); return; }
+    const r = await apiSeguridad('mfa_regenerar_respaldo', { codigo: codigo });
+    if(!r.ok){ segError('segErr', r.error || 'No se pudo.'); return; }
+    segPintarRespaldo(r.respaldo || [], false);
+  });
+  const quitar = document.getElementById('segQuitar');
+  if(quitar) quitar.addEventListener('click', async function(){
+    const codigo = (document.getElementById('segCodigo').value || '').trim();
+    const pw = (document.getElementById('segPw') || {}).value || '';
+    if(!codigo || !pw){ segError('segErr', 'Hacen falta tu contraseña y el código de la app.'); return; }
+    const r = await apiSeguridad('mfa_desactivar', { codigo: codigo, password: pw });
+    if(!r.ok){ segError('segErr', r.error || 'No se pudo desactivar.'); return; }
+    toast('Verificación en dos pasos desactivada.');
+    closeDrawer();
+  });
+}
+
+/* ---------- panel del administrador (dentro de Usuarios) ---------- */
+async function segPanelAdmin(){
+  const caja = document.getElementById('segAdminCaja');
+  if(!caja) return;
+  const r = await apiSeguridad('admin_panel', {});
+  if(!r.ok){ caja.innerHTML = ''; return; }
+  const pendientes = (r.solicitudes || []).filter(function(s){ return s.estado === 'pendiente'; });
+  const entregados = (r.solicitudes || []).filter(function(s){ return s.estado === 'atendida'; });
+
+  caja.innerHTML =
+    '<div class="panel" style="margin-bottom:16px;">' +
+    '<h3 style="margin:0 0 10px;">Contraseñas olvidadas<'+'/h3>' +
+    (pendientes.length === 0 && entregados.length === 0
+      ? '<div style="font-size:13px;color:var(--ink-soft);">No hay solicitudes pendientes.<'+'/div>'
+      : '') +
+    pendientes.map(function(s){
+      return '<div class="row-card seg-sol"><div class="u-body">' +
+        '<div class="u-name mono">' + esc(s.email) + '<'+'/div>' +
+        '<div style="font-size:12px;color:#666;">Pidió reiniciar su contraseña · ' + esc(fmtDateTime(s.creado_at)) + '<'+'/div>' +
+        '<'+'/div><div class="seg-sol-btns">' +
+        '<button class="btn btn-sm btn-primary segGenBtn" data-email="' + esc(s.email) + '">Generar código<'+'/button>' +
+        '<button class="btn btn-sm segCancelBtn" data-id="' + s.id + '">Descartar<'+'/button>' +
+        '<'+'/div><'+'/div>';
+    }).join('') +
+    entregados.map(function(s){
+      const vencido = s.codigo_expira && new Date(s.codigo_expira) < new Date();
+      return '<div class="row-card seg-sol"><div class="u-body">' +
+        '<div class="u-name mono">' + esc(s.email) + '<'+'/div>' +
+        '<div style="font-size:12px;color:#666;">Código entregado · ' +
+        (vencido ? 'vencido' : 'vence ' + esc(fmtDateTime(s.codigo_expira))) + '<'+'/div>' +
+        '<'+'/div><div class="seg-sol-btns">' +
+        '<button class="btn btn-sm segGenBtn" data-email="' + esc(s.email) + '">Generar otro<'+'/button>' +
+        '<'+'/div><'+'/div>';
+    }).join('') +
+    '<div style="font-size:12px;color:var(--ink-faint);margin-top:10px;">' +
+    'El código sirve 24 horas y una sola vez. Entregáselo a la persona por el medio que prefieras.' +
+    '<'+'/div><'+'/div>';
+
+  caja.querySelectorAll('.segGenBtn').forEach(function(b){
+    b.addEventListener('click', async function(){
+      b.disabled = true; b.textContent = '…';
+      const r2 = await apiSeguridad('admin_generar_codigo', { email: b.getAttribute('data-email') });
+      if(!r2.ok){ toast(r2.error || 'No se pudo generar.', true); b.disabled = false; b.textContent = 'Generar código'; return; }
+      segMostrarCodigo(b.getAttribute('data-email'), r2.codigo);
+      loadUsuarios();
+    });
+  });
+  caja.querySelectorAll('.segCancelBtn').forEach(function(b){
+    b.addEventListener('click', async function(){
+      const r2 = await apiSeguridad('admin_cancelar_solicitud', { id: parseInt(b.getAttribute('data-id'), 10) });
+      if(r2.ok) loadUsuarios(); else toast(r2.error || 'No se pudo.', true);
+    });
+  });
+}
+
+function segMostrarCodigo(email, codigo){
+  drawerMode = 'segCodigo'; drawerItem = null;
+  document.getElementById('drawerTitle').textContent = 'Código de reinicio';
+  document.getElementById('drawerBody').innerHTML =
+    '<div class="info-note" style="margin-bottom:14px;">Entregale este código a <b>' + esc(email) + '<'+'/b>. ' +
+    'Sirve <b>24 horas<'+'/b> y <b>una sola vez<'+'/b>. Con él va a poder poner una contraseña nueva ' +
+    'desde la pantalla de ingreso, en "Ya tengo un código".<'+'/div>' +
+    '<div class="mono" style="text-align:center;font-size:30px;letter-spacing:4px;padding:20px;background:var(--surface-alt);border-radius:10px;user-select:all;">' +
+    esc(codigo) + '<'+'/div>' +
+    '<div style="font-size:12px;color:var(--ink-faint);margin-top:12px;">' +
+    'No se vuelve a mostrar. Si lo perdés, generá otro.<'+'/div>';
+  document.getElementById('drawerFoot').innerHTML =
+    '<button class="btn" id="segCopCod" style="flex:1;">Copiar<'+'/button>' +
+    '<button class="btn btn-primary" id="segCerrarCod" style="flex:1;">Listo<'+'/button>';
+  document.getElementById('segCopCod').addEventListener('click', function(){
+    try{ navigator.clipboard.writeText(codigo); toast('Código copiado.'); }
+    catch(e){ toast('No se pudo copiar.', true); }
+  });
+  document.getElementById('segCerrarCod').addEventListener('click', closeDrawer);
+  showDrawer();
 }
 
 
