@@ -654,7 +654,7 @@ a{color:inherit;}
     <div class="spacer"></div>
     <div class="live-stat" id="liveStat">
       <span><b id="statCount">–</b> artículos</span>
-      <span><b id="statValue">–</b> valor actual</span>
+      <span><b id="statValue">–</b> valor adquisición</span>
     </div>
     <button class="icon-btn" id="refreshBtn" title="Actualizar">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-2.6-6.36M21 3v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1317,7 +1317,7 @@ async function enterApp(){
   document.getElementById('userRole').textContent = session.rol === 'admin' ? 'Administrador' : (session.rol === 'consulta' ? 'Consulta' : 'Usuario');
 
   document.getElementById('statCount').textContent = (lastStats.total_items||0).toLocaleString('en-US');
-  document.getElementById('statValue').textContent = fmtMoneyShort(lastStats.valor_actual_total||0);
+  document.getElementById('statValue').textContent = fmtMoneyShort(lastStats.valor_adquisicion_total||0);
   renderNav();
   renderChips();
   switchView('inventario');
@@ -1557,7 +1557,7 @@ function asisInterpretar(pregunta, catalogo) {
 
   const plan = {
     ambito: 'activos',
-    campo_valor: 'valor_actual',
+    campo_valor: 'valor_adquisicion',
     orden: 'valor_desc',
     limite: 15,
   };
@@ -1579,6 +1579,8 @@ function asisInterpretar(pregunta, catalogo) {
   // ---------- 2. Qué campo de valor ----------
   if (/valor(?:es)? de adquisicion|valor(?:es)? de compra|precio de compra|precio original|costo original|valor original|costaron/.test(t)) {
     plan.campo_valor = 'valor_adquisicion';
+  } else if (/valor(?:es)? actual|valor(?:es)? depreciad\w*|valor(?:es)? de hoy|valor(?:es)? en libros|valor(?:es)? contable/.test(t)) {
+    plan.campo_valor = 'valor_actual';
   }
 
   // ---------- 3. Métrica ----------
@@ -1736,7 +1738,7 @@ function asisInterpretar(pregunta, catalogo) {
   let expl = cabeza;
   expl += { activos: ' activos', descargados: ' descargados', trasladados: ' trasladados', papelera: ' de la papelera' }[plan.ambito] || '';
   if (partes.length) expl += ' ' + partes.join(', ');
-  if (plan.campo_valor === 'valor_adquisicion') expl += ' (usando el valor de adquisición)';
+  if (plan.campo_valor === 'valor_actual') expl += ' (usando el valor actual, ya depreciado)';
   if (plan.metrica === 'lista') {
     expl += plan.orden === 'valor_desc' ? ', del más caro al más barato'
          : plan.orden === 'valor_asc' ? ', del más barato al más caro' : '';
@@ -2238,7 +2240,7 @@ function rowTemplate(item){
     </div>
     <div class="row-side">
       <span class="estado-badge" style="${estadoStyle}">${esc(item.estado)||'—'}</span>
-      <span class="row-value">${fmtMoney(item.valor_actual)}</span>
+      <span class="row-value">${fmtMoney(item.valor_adquisicion)}</span>
       <span class="row-tag">${REPORTE_LABEL[item.reporte]||item.reporte||''}</span>
     </div>
   </div>`;
@@ -2386,7 +2388,7 @@ async function refreshStatsAndChrome(){
   if(r.ok){
     lastStats = r.stats;
     document.getElementById('statCount').textContent = (lastStats.total_items||0).toLocaleString('en-US');
-    document.getElementById('statValue').textContent = fmtMoneyShort(lastStats.valor_actual_total||0);
+    document.getElementById('statValue').textContent = fmtMoneyShort(lastStats.valor_adquisicion_total||0);
     renderNav();
     if(currentView==='inventario') renderChips();
   }
@@ -3241,7 +3243,7 @@ async function abrirTomaDetalle(tomaId, estadoConocido){
     document.getElementById('drawerFoot').innerHTML = '';
     document.getElementById('drawerBody').innerHTML = fal.length===0
       ? '<div class="info-note">No hay bienes faltantes por ahora.</div>'
-      : fal.map(f=>`<div class="row-card"><div class="u-body"><div class="u-name mono">${esc(f.codigo||'')}</div><div style="font-size:12px;color:#666;">${esc(f.descripcion||'')} — ${esc(f.ubicacion||'')}</div></div><div style="text-align:right;"><div class="mono">${fmtMoney(f.valor_actual||0)}</div></div></div>`).join('');
+      : fal.map(f=>`<div class="row-card"><div class="u-body"><div class="u-name mono">${esc(f.codigo||'')}</div><div style="font-size:12px;color:#666;">${esc(f.descripcion||'')} — ${esc(f.ubicacion||'')}</div></div><div style="text-align:right;"><div class="mono">${fmtMoney(f.valor_adquisicion||0)}</div></div></div>`).join('');
     showDrawer();
   });
   const reasignarBtn = document.getElementById('tomaReasignarBtn');
@@ -3494,7 +3496,7 @@ async function loadDescargados(){
         <div class="u-meta">${esc(motivo)} ${fecha ? '· ' + fecha : ''} · ${esc(it.unidad||'')}</div>
       </div>
       <div style="text-align:right;">
-        <div class="mono" style="font-size:14px;">${fmtMoney(it.valor_actual)}</div>
+        <div class="mono" style="font-size:14px;">${fmtMoney(it.valor_adquisicion)}</div>
         <button class="btn btn-sm" onclick="reintegrarBien('${esc(it.codigo)}')">Reintegrar</button>
       </div>
     </div>`;
@@ -4584,7 +4586,7 @@ async function loadTraslados(){
         </div>
         <div class="row-side">
           <span class="descargo-badge" style="background:var(--amber-soft);color:#7a5316;">Trasladado</span>
-          <span class="row-value">${fmtMoney(it.traslado_valor != null ? it.traslado_valor : it.valor_actual)}</span>
+          <span class="row-value">${fmtMoney(it.traslado_valor != null ? it.traslado_valor : it.valor_adquisicion)}</span>
           <span class="row-tag">${esc(it.trasladado_por||'')}</span>
         </div>
       </div>`;
