@@ -3489,7 +3489,7 @@ async function loadDescargados(){
   el.innerHTML = items.map(it => {
     const motivo = it.descargo_motivo || '';
     const fecha = it.descargo_fecha ? fmtDate(it.descargo_fecha) : '';
-    return `<div class="row-card">
+    return `<div class="row-card" data-code="${esc(it.codigo)}">
       <div class="u-body">
         <div class="u-name mono">${esc(it.codigo)}</div>
         <div style="font-weight:600;">${esc(it.descripcion)}</div>
@@ -3497,10 +3497,17 @@ async function loadDescargados(){
       </div>
       <div style="text-align:right;">
         <div class="mono" style="font-size:14px;">${fmtMoney(it.valor_adquisicion)}</div>
-        <button class="btn btn-sm" onclick="reintegrarBien('${esc(it.codigo)}')">Reintegrar</button>
+        <button class="btn btn-sm" onclick="event.stopPropagation();reintegrarBien('${esc(it.codigo)}')">Reintegrar</button>
       </div>
     </div>`;
   }).join('');
+  el.querySelectorAll('.row-card').forEach(card=>{
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', e=>{
+      if(e.target.closest('button')) return;
+      abrirDetalleDescargado(card.getAttribute('data-code'));
+    });
+  });
 
   const total = r.total || 0;
   const totalPages = Math.max(1, Math.ceil(total / descFilters.pageSize));
@@ -3515,6 +3522,63 @@ async function loadDescargados(){
     document.getElementById('dPrev').onclick = () => { descFilters.page--; loadDescargados(); };
     document.getElementById('dNext').onclick = () => { descFilters.page++; loadDescargados(); };
   }
+}
+
+async function abrirDetalleDescargado(codigo){
+  drawerMode = 'view-descargado';
+  document.getElementById('drawerTitle').textContent = codigo;
+  document.getElementById('drawerBody').innerHTML = spinnerHTML();
+  document.getElementById('drawerFoot').innerHTML = '';
+  showDrawer();
+  apiInventario('get', {codigo}).then(r=>{
+    if(!r.ok){ closeDrawer(); toast(r.error||'No se pudo cargar.', true); return; }
+    const it = r.item; drawerItem = it;
+    const campos = [
+      ['Motivo del descargo', it.descargo_motivo],
+      ['Fecha del descargo', it.descargo_fecha ? fmtDate(it.descargo_fecha) : null],
+      ['Documento de respaldo', it.descargo_documento],
+      ['Observación del descargo', it.descargo_observacion],
+      ['Valor al descargar', it.descargo_valor != null ? fmtMoney(it.descargo_valor) : null],
+      ['Descargado por', it.descargado_por],
+      ['Registrado el', it.descargado_at ? fmtDateTime(it.descargado_at) : null],
+    ];
+    const ficha = ['descripcion','estado','valor_adquisicion','unidad','ubicacion','marca','modelo','serie','color','fuente','fecha_adquisicion','reporte','observacion','caracteristica'];
+    document.getElementById('drawerBody').innerHTML = `
+      <div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:18px;">
+        Este bien fue <b>descargado del inventario</b>: no se cuenta en el inventario activo ni en los totales.
+      </div>
+      <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:0 0 12px;">Datos del descargo</h3>
+      ${campos.map(([l,v])=>`<div class="field-view"><div class="fv-label">${l}</div><div class="fv-value">${v?esc(String(v)):'<span class="empty">No registrado</span>'}</div></div>`).join('')}
+      <div class="field-view">
+        <div class="fv-label">Archivo de respaldo</div>
+        <div class="fv-value">
+          ${it.descargo_archivo_path
+            ? `<button class="attach-link" id="verArchDesc">
+                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                 ${esc(it.descargo_archivo_nombre||'Ver documento')}</button>`
+            : '<span class="empty">Sin archivo adjunto</span>'}
+        </div>
+      </div>
+      <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:22px 0 12px;padding-top:14px;border-top:1px solid var(--line);">Datos del bien</h3>
+      ${ficha.map(k=>{
+        let v = it[k], d;
+        if(k==='estado') d = `<span class="estado-badge" style="${ESTADO_BADGE[v]||''}">${esc(v)||'—'}</span>`;
+        else if(k==='valor_adquisicion') d = `<span class="mono">${fmtMoney(v)}</span>`;
+        else if(k==='fecha_adquisicion') d = v ? fmtDate(v) : '<span class="empty">Sin fecha</span>';
+        else if(k==='reporte') d = REPORTE_LABEL[v]||v||'—';
+        else if(k==='serie') d = v ? `<span class="mono">${esc(v)}</span>` : '<span class="empty">No registrado</span>';
+        else d = v ? esc(v) : '<span class="empty">No registrado</span>';
+        return `<div class="field-view"><div class="fv-label">${FIELD_LABELS[k]}</div><div class="fv-value">${d}</div></div>`;
+      }).join('')}
+      <div class="field-view"><div class="fv-label">Código</div><div class="fv-value mono">${esc(it.codigo)}</div></div>`;
+    document.getElementById('drawerFoot').innerHTML = '';
+    const vb = document.getElementById('verArchDesc');
+    if(vb) vb.onclick = async ()=>{
+      const rr = await apiInventario('descargo_file_url', {codigo: it.codigo, campo: 'descargo'});
+      if(!rr.ok){ toast(rr.error||'No se pudo abrir el archivo.', true); return; }
+      window.open(rr.url, '_blank', 'noopener');
+    };
+  });
 }
 
 async function reintegrarBien(codigo){
