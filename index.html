@@ -697,7 +697,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">23/10/2026 11:00</span>
+      Versión de la página<br><span class="mono" id="umVersion">23/10/2026 11:20</span>
     </div>
   </div>
 
@@ -3310,8 +3310,8 @@ function concFechaTexto(iso){ return iso ? fmtDate(iso) : ''; }
 function concLeerFormulario(){
   const v = id => (document.getElementById(id) || {}).value || '';
   return {
-    desde: v('concDesde'),
-    hasta: v('concHasta'),
+    menores: { desde: v('concMenDesde'), hasta: v('concMenHasta') },
+    mayores: { desde: v('concMayDesde'), hasta: v('concMayHasta') },
     menor: v('concMenor') === '' ? 600 : Number(v('concMenor')),
     mayor: v('concMayor') === '' ? 900 : Number(v('concMayor')),
     sin_fecha: !!(document.getElementById('concSinFecha') || {}).checked
@@ -3319,17 +3319,32 @@ function concLeerFormulario(){
 }
 
 function concValidar(p){
-  if(p.desde && p.hasta && p.desde > p.hasta) return 'La fecha "desde" es posterior a la fecha "hasta".';
+  if(p.menores.desde && p.menores.hasta && p.menores.desde > p.menores.hasta) return 'En los bienes menores, la fecha "desde" es posterior a la fecha "hasta".';
+  if(p.mayores.desde && p.mayores.hasta && p.mayores.desde > p.mayores.hasta) return 'En los bienes mayores, la fecha "desde" es posterior a la fecha "hasta".';
   if(!isFinite(p.menor) || !isFinite(p.mayor) || p.menor < 0 || p.mayor < 0) return 'Escribe montos válidos.';
   if(p.menor > p.mayor) return 'El monto de "menores a" no puede ser mayor que el de "mayores a".';
   return '';
 }
 
-function concTextoRango(p){
-  if(p.desde && p.hasta) return 'del ' + concFechaTexto(p.desde) + ' al ' + concFechaTexto(p.hasta);
-  if(p.desde) return 'desde el ' + concFechaTexto(p.desde);
-  if(p.hasta) return 'hasta el ' + concFechaTexto(p.hasta);
+function concTextoRango(r){
+  if(r.desde && r.hasta) return 'del ' + concFechaTexto(r.desde) + ' al ' + concFechaTexto(r.hasta);
+  if(r.desde) return 'desde el ' + concFechaTexto(r.desde);
+  if(r.hasta) return 'hasta el ' + concFechaTexto(r.hasta);
   return 'todas las fechas';
+}
+
+function concBloque(g, titulo, montoId, montoVal, desde, hasta){
+  return `
+    <div class="panel" style="margin-bottom:0;">
+      <h3>${titulo}</h3>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
+        <div class="form-field" style="grid-column:1/-1;max-width:220px;"><label>${g==='men'?'Menores a':'Mayores a'} (US$)</label><input type="number" id="${montoId}" value="${montoVal}" step="0.01" min="0" inputmode="decimal"></div>
+        <div class="form-field"><label>Adquisición desde</label><input type="date" id="conc${g==='men'?'Men':'May'}Desde" value="${desde}"></div>
+        <div class="form-field"><label>Adquisición hasta</label><input type="date" id="conc${g==='men'?'Men':'May'}Hasta" value="${hasta}"></div>
+      </div>
+      <div id="concRes${g==='men'?'Men':'May'}" style="margin-top:14px;"></div>
+      <button class="btn btn-primary" id="concDesc${g==='men'?'Men':'May'}" style="margin-top:12px;">Descargar Excel</button>
+    </div>`;
 }
 
 function loadConciliacion(){
@@ -3340,61 +3355,56 @@ function loadConciliacion(){
     el.innerHTML = `
       <div class="import-wrap">
         <div class="info-note">
-          <b>Conciliación.</b> Descarga en Excel los bienes <b>activos</b> cuyo valor de adquisición es
-          menor o mayor a los montos indicados, comprados dentro del rango de fechas que elijas.
-          El Excel trae una hoja por grupo, con totales.
+          <b>Conciliación.</b> Descarga en Excel los bienes <b>activos</b> por valor de adquisición.
+          Cada grupo tiene su propio rango de fechas de adquisición y su propio botón de descarga.
+          Ya vienen puestos los rangos de siempre: menores a $600 hasta 2021 y mayores a $900 desde 2022.
         </div>
-        <div class="panel" style="margin-bottom:16px;">
-          <h3>Rango y montos</h3>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
-            <div class="form-field"><label>Fecha de adquisición desde</label><input type="date" id="concDesde"></div>
-            <div class="form-field"><label>Fecha de adquisición hasta</label><input type="date" id="concHasta"></div>
-            <div class="form-field"><label>Menores a (US$)</label><input type="number" id="concMenor" value="600" step="0.01" min="0" inputmode="decimal"></div>
-            <div class="form-field"><label>Mayores a (US$)</label><input type="number" id="concMayor" value="900" step="0.01" min="0" inputmode="decimal"></div>
-          </div>
-          <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:12px;font-weight:400;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
+          ${concBloque('men', 'Bienes menores', 'concMenor', 600, '', '2021-12-31')}
+          ${concBloque('may', 'Bienes mayores', 'concMayor', 900, '2022-01-01', '')}
+        </div>
+        <div class="panel" style="margin-top:16px;">
+          <label style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:400;">
             <input type="checkbox" id="concSinFecha"> Incluir también los bienes que no tienen fecha de adquisición
           </label>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
-            <button class="btn btn-primary" id="concDescargar">Descargar Excel</button>
-          </div>
+          <div id="concAviso"></div>
+          <button class="btn" id="concDescTodos" style="margin-top:12px;">Descargar los dos en un solo Excel</button>
         </div>
-        <div id="concResultado"></div>
       </div>`;
-    ['concDesde','concHasta','concMenor','concMayor','concSinFecha'].forEach(function(id){
+    ['concMenDesde','concMenHasta','concMayDesde','concMayHasta','concMenor','concMayor','concSinFecha'].forEach(function(id){
       document.getElementById(id).addEventListener('change', concCalcular);
     });
-    document.getElementById('concDescargar').addEventListener('click', concDescargar);
+    document.getElementById('concDescMen').addEventListener('click', function(){ concDescargar('menores', this); });
+    document.getElementById('concDescMay').addEventListener('click', function(){ concDescargar('mayores', this); });
+    document.getElementById('concDescTodos').addEventListener('click', function(){ concDescargar('todos', this); });
   }
   concCalcular();
 }
 
 let concPedido = 0;
 async function concCalcular(){
-  const caja = document.getElementById('concResultado');
+  const cajas = [document.getElementById('concResMen'), document.getElementById('concResMay')];
+  const aviso = document.getElementById('concAviso');
   const p = concLeerFormulario();
   const err = concValidar(p);
-  if(err){ caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">' + esc(err) + '</div>'; return; }
+  const rojo = t => '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;margin:0;">' + esc(t) + '</div>';
+  if(err){ cajas.forEach(c => c.innerHTML = ''); aviso.innerHTML = '<div style="margin-top:12px;">' + rojo(err) + '</div>'; return; }
   const yo = ++concPedido;
-  caja.innerHTML = spinnerHTML();
+  aviso.innerHTML = '';
+  cajas.forEach(c => c.innerHTML = spinnerHTML());
   const r = await apiConciliacion('resumen', p);
   if(yo !== concPedido) return;
-  if(!r || !r.ok){ caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">' + esc((r && r.error) || 'No se pudo calcular.') + '</div>'; return; }
-  const tarjeta = (titulo, g) => `
+  if(!r || !r.ok){ cajas.forEach(c => c.innerHTML = rojo((r && r.error) || 'No se pudo calcular.')); return; }
+  const tarjeta = (g, rango) => `
     <div class="stat-card">
-      <div class="stat-label">${esc(titulo)}</div>
+      <div class="stat-label">Fecha de adquisición ${esc(concTextoRango(rango))}</div>
       <div class="stat-value">${Number(g.conteo).toLocaleString('en-US')} bienes</div>
       <div class="stat-sub">Valor de adquisición: ${fmtMoney(g.valor_adquisicion)}</div>
       <div class="stat-sub">Valor actual: ${fmtMoney(g.valor_actual)}</div>
+      ${g.sin_fecha_fuera ? `<div class="stat-sub">${Number(g.sin_fecha_fuera).toLocaleString('en-US')} sin fecha de adquisición quedaron fuera.</div>` : ''}
     </div>`;
-  const fuera = (r.menores.sin_fecha_fuera || 0) + (r.mayores.sin_fecha_fuera || 0);
-  caja.innerHTML = `
-    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Bienes activos, fecha de adquisición ${esc(concTextoRango(p))}.</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-      ${tarjeta('Menores a ' + concMonto(r.menor), r.menores)}
-      ${tarjeta('Mayores a ' + concMonto(r.mayor), r.mayores)}
-    </div>
-    ${fuera ? `<div class="info-note" style="margin-top:12px;">${fuera.toLocaleString('en-US')} bienes de estos montos no tienen fecha de adquisición y quedaron fuera del rango. Marca la casilla de arriba si quieres incluirlos.</div>` : ''}`;
+  cajas[0].innerHTML = tarjeta(r.menores, p.menores);
+  cajas[1].innerHTML = tarjeta(r.mayores, p.mayores);
 }
 
 function concHoja(titulo, subtitulo, items){
@@ -3430,31 +3440,37 @@ function concHoja(titulo, subtitulo, items){
   return ws;
 }
 
-async function concDescargar(){
-  const btn = document.getElementById('concDescargar');
+async function concDescargar(grupo, btn){
   const p = concLeerFormulario();
   const err = concValidar(p);
   if(err){ toast(err, true); return; }
   if(typeof XLSX === 'undefined'){ toast('No se pudo cargar el generador de Excel. Recarga la página e intenta de nuevo.', true); return; }
   btn.disabled = true; const txt = btn.textContent; btn.textContent = 'Preparando…';
   try{
-    const r = await apiConciliacion('export', p);
+    const r = await apiConciliacion('export', Object.assign({ grupo: grupo }, p));
     if(!r || !r.ok){ toast((r && r.error) || 'No se pudo generar el archivo.', true); return; }
     const items = r.items || [];
     const menores = items.filter(it => it.grupo === 'menores');
     const mayores = items.filter(it => it.grupo === 'mayores');
     const ahora = new Date();
     const gen = ahora.toLocaleDateString('es-SV') + ' ' + ahora.toLocaleTimeString('es-SV', {hour:'2-digit', minute:'2-digit'});
-    const sub = 'Bienes activos · Fecha de adquisición: ' + concTextoRango(p) + (p.sin_fecha ? ' (incluye bienes sin fecha)' : '') + ' · Generado: ' + gen;
-    const wb = XLSX.utils.book_new();
+    const sub = rango => 'Bienes activos · Fecha de adquisición: ' + concTextoRango(rango) + (p.sin_fecha ? ' (incluye bienes sin fecha)' : '') + ' · Generado: ' + gen;
     const nom = n => String(concMonto(n)).replace(/[$,]/g, '');
-    XLSX.utils.book_append_sheet(wb, concHoja('Bienes con valor de adquisición menor a ' + concMonto(r.menor), sub, menores), ('Menores a ' + nom(r.menor)).slice(0,31));
-    XLSX.utils.book_append_sheet(wb, concHoja('Bienes con valor de adquisición mayor a ' + concMonto(r.mayor), sub, mayores), ('Mayores a ' + nom(r.mayor)).slice(0,31));
+    const wb = XLSX.utils.book_new();
+    if(grupo !== 'mayores') XLSX.utils.book_append_sheet(wb, concHoja('Bienes con valor de adquisición menor a ' + concMonto(r.menor), sub(p.menores), menores), ('Menores a ' + nom(r.menor)).slice(0,31));
+    if(grupo !== 'menores') XLSX.utils.book_append_sheet(wb, concHoja('Bienes con valor de adquisición mayor a ' + concMonto(r.mayor), sub(p.mayores), mayores), ('Mayores a ' + nom(r.mayor)).slice(0,31));
     const datos = XLSX.write(wb, {bookType:'xlsx', type:'array'});
     const blob = new Blob([datos], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    const nombre = 'conciliacion_' + (p.desde || 'inicio') + '_a_' + (p.hasta || 'hoy') + '.xlsx';
+    const tramo = rg => (rg.desde || 'inicio') + '_a_' + (rg.hasta || 'hoy');
+    let nombre;
+    if(grupo === 'menores') nombre = 'conciliacion_menores_' + nom(r.menor) + '_' + tramo(p.menores) + '.xlsx';
+    else if(grupo === 'mayores') nombre = 'conciliacion_mayores_' + nom(r.mayor) + '_' + tramo(p.mayores) + '.xlsx';
+    else nombre = 'conciliacion_' + ahora.toISOString().slice(0,10) + '.xlsx';
     guardarArchivo(blob, nombre);
-    toast('Excel generado: ' + menores.length.toLocaleString('en-US') + ' menores y ' + mayores.length.toLocaleString('en-US') + ' mayores.');
+    const partes = [];
+    if(grupo !== 'mayores') partes.push(menores.length.toLocaleString('en-US') + ' menores');
+    if(grupo !== 'menores') partes.push(mayores.length.toLocaleString('en-US') + ' mayores');
+    toast('Excel generado: ' + partes.join(' y ') + '.');
   }catch(e){
     toast('No se pudo generar el Excel.', true);
   }finally{
