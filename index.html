@@ -697,7 +697,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">23/10/2026 11:20</span>
+      Versión de la página<br><span class="mono" id="umVersion">23/10/2026 11:40</span>
     </div>
   </div>
 
@@ -3357,7 +3357,7 @@ function loadConciliacion(){
         <div class="info-note">
           <b>Conciliación.</b> Descarga en Excel los bienes <b>activos</b> por valor de adquisición.
           Cada grupo tiene su propio rango de fechas de adquisición y su propio botón de descarga.
-          Ya vienen puestos los rangos de siempre: menores a $600 hasta 2021 y mayores a $900 desde 2022.
+          Ya vienen puestos los rangos de siempre: menores a $600 hasta 2021 y mayores a $900 desde 2022, más los bienes que no tienen fecha de adquisición.
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
           ${concBloque('men', 'Bienes menores', 'concMenor', 600, '', '2021-12-31')}
@@ -3365,7 +3365,7 @@ function loadConciliacion(){
         </div>
         <div class="panel" style="margin-top:16px;">
           <label style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:400;">
-            <input type="checkbox" id="concSinFecha"> Incluir también los bienes que no tienen fecha de adquisición
+            <input type="checkbox" id="concSinFecha" checked> Incluir los bienes que no tienen fecha de adquisición (van al final de cada hoja)
           </label>
           <div id="concAviso"></div>
           <button class="btn" id="concDescTodos" style="margin-top:12px;">Descargar los dos en un solo Excel</button>
@@ -3401,6 +3401,7 @@ async function concCalcular(){
       <div class="stat-value">${Number(g.conteo).toLocaleString('en-US')} bienes</div>
       <div class="stat-sub">Valor de adquisición: ${fmtMoney(g.valor_adquisicion)}</div>
       <div class="stat-sub">Valor actual: ${fmtMoney(g.valor_actual)}</div>
+      ${g.sin_fecha_incluidos ? `<div class="stat-sub">Incluye ${Number(g.sin_fecha_incluidos).toLocaleString('en-US')} sin fecha de adquisición.</div>` : ''}
       ${g.sin_fecha_fuera ? `<div class="stat-sub">${Number(g.sin_fecha_fuera).toLocaleString('en-US')} sin fecha de adquisición quedaron fuera.</div>` : ''}
     </div>`;
   cajas[0].innerHTML = tarjeta(r.menores, p.menores);
@@ -3411,7 +3412,7 @@ function concHoja(titulo, subtitulo, items){
   const enc = ['N°','Código','Descripción','Marca','Modelo','Serie','Unidad','Ubicación','Fuente','Reporte','Estado','Fecha de adquisición','Valor de adquisición','Valor actual'];
   const filas = [[titulo], [subtitulo], [], enc];
   items.forEach(function(it, i){
-    let f = null;
+    let f = 'Sin fecha';
     if(it.fecha_adquisicion){
       const pz = String(it.fecha_adquisicion).slice(0,10).split('-').map(Number);
       // Número de serie de Excel calculado en UTC: con un Date local, la librería
