@@ -697,7 +697,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">15/09/2026 17:30</span>
+      Versión de la página<br><span class="mono" id="umVersion">23/10/2026 11:00</span>
     </div>
   </div>
 
@@ -914,6 +914,11 @@ a{color:inherit;}
       <!-- ASISTENTE DE PREGUNTAS -->
       <div class="view" id="view-asistente">
         <div class="admin-scroll" id="asistenteScroll"></div>
+      </div>
+
+      <!-- CONCILIACIÓN (admin y usuario) -->
+      <div class="view" id="view-conciliacion">
+        <div class="admin-scroll" id="concScroll"></div>
       </div>
 
       <!-- DEPRECIACIÓN (solo admin) -->
@@ -1348,6 +1353,7 @@ function navItemsForRole(){
     items.push({id:'respaldos', label:'Respaldos', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="8" ry="3" stroke="currentColor" stroke-width="1.7"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" stroke="currentColor" stroke-width="1.7"/></svg>'});
     items.push({id:'auditoria', label:'Auditoría', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="1.7"/></svg>'});
   }
+  items.push({id:'conciliacion', label:'Conciliación', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'});
   items.push({id:'depreciacion', label:'Depreciación', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 3 5-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'});
   return items;
 }
@@ -1390,6 +1396,7 @@ function refreshCurrentView(){
   else if(currentView==='importar') resetImportView();
   else if(currentView==='depreciacion') loadDeprec();
   else if(currentView==='asistente') loadAsistente();
+  else if(currentView==='conciliacion') loadConciliacion();
 }
 
 /* ===========================================================================
@@ -3271,6 +3278,189 @@ async function abrirTomaDetalle(tomaId, estadoConocido){
 }
 
 let deprecItems = [];
+
+/* ============ CONCILIACIÓN ============
+   Bienes activos con valor de adquisición por debajo de un monto (600) y por
+   encima de otro (900), filtrados por rango de fecha de adquisición. Se
+   descargan en un Excel con una hoja por grupo. Vive en la función
+   'conciliacion' del servidor; el rol consulta no tiene acceso. */
+const FN_CONC = SUPABASE_URL + '/functions/v1/conciliacion';
+
+async function apiConciliacion(accion, payload){
+  try{
+    const res = await fetch(FN_CONC, {
+      method:'POST',
+      headers:{'Content-Type':'application/json', 'x-session-token': session ? session.token : ''},
+      body: JSON.stringify(Object.assign({ accion: accion }, payload || {}))
+    });
+    const data = await res.json();
+    if(res.status === 401){ borrarSesionGuardada(); toast('Tu sesión expiró. Inicia sesión nuevamente.', true); doLogout(true); }
+    return data;
+  }catch(e){
+    return {ok:false, error:'No se pudo conectar con el servidor. Revisa tu conexión.'};
+  }
+}
+
+function concMonto(n){
+  n = Number(n) || 0;
+  return '$' + n.toLocaleString('en-US', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2});
+}
+function concFechaTexto(iso){ return iso ? fmtDate(iso) : ''; }
+
+function concLeerFormulario(){
+  const v = id => (document.getElementById(id) || {}).value || '';
+  return {
+    desde: v('concDesde'),
+    hasta: v('concHasta'),
+    menor: v('concMenor') === '' ? 600 : Number(v('concMenor')),
+    mayor: v('concMayor') === '' ? 900 : Number(v('concMayor')),
+    sin_fecha: !!(document.getElementById('concSinFecha') || {}).checked
+  };
+}
+
+function concValidar(p){
+  if(p.desde && p.hasta && p.desde > p.hasta) return 'La fecha "desde" es posterior a la fecha "hasta".';
+  if(!isFinite(p.menor) || !isFinite(p.mayor) || p.menor < 0 || p.mayor < 0) return 'Escribe montos válidos.';
+  if(p.menor > p.mayor) return 'El monto de "menores a" no puede ser mayor que el de "mayores a".';
+  return '';
+}
+
+function concTextoRango(p){
+  if(p.desde && p.hasta) return 'del ' + concFechaTexto(p.desde) + ' al ' + concFechaTexto(p.hasta);
+  if(p.desde) return 'desde el ' + concFechaTexto(p.desde);
+  if(p.hasta) return 'hasta el ' + concFechaTexto(p.hasta);
+  return 'todas las fechas';
+}
+
+function loadConciliacion(){
+  const el = document.getElementById('concScroll');
+  if(!el) return;
+  if(!el.getAttribute('data-listo')){
+    el.setAttribute('data-listo', '1');
+    el.innerHTML = `
+      <div class="import-wrap">
+        <div class="info-note">
+          <b>Conciliación.</b> Descarga en Excel los bienes <b>activos</b> cuyo valor de adquisición es
+          menor o mayor a los montos indicados, comprados dentro del rango de fechas que elijas.
+          El Excel trae una hoja por grupo, con totales.
+        </div>
+        <div class="panel" style="margin-bottom:16px;">
+          <h3>Rango y montos</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+            <div class="form-field"><label>Fecha de adquisición desde</label><input type="date" id="concDesde"></div>
+            <div class="form-field"><label>Fecha de adquisición hasta</label><input type="date" id="concHasta"></div>
+            <div class="form-field"><label>Menores a (US$)</label><input type="number" id="concMenor" value="600" step="0.01" min="0" inputmode="decimal"></div>
+            <div class="form-field"><label>Mayores a (US$)</label><input type="number" id="concMayor" value="900" step="0.01" min="0" inputmode="decimal"></div>
+          </div>
+          <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:12px;font-weight:400;">
+            <input type="checkbox" id="concSinFecha"> Incluir también los bienes que no tienen fecha de adquisición
+          </label>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+            <button class="btn btn-primary" id="concDescargar">Descargar Excel</button>
+          </div>
+        </div>
+        <div id="concResultado"></div>
+      </div>`;
+    ['concDesde','concHasta','concMenor','concMayor','concSinFecha'].forEach(function(id){
+      document.getElementById(id).addEventListener('change', concCalcular);
+    });
+    document.getElementById('concDescargar').addEventListener('click', concDescargar);
+  }
+  concCalcular();
+}
+
+let concPedido = 0;
+async function concCalcular(){
+  const caja = document.getElementById('concResultado');
+  const p = concLeerFormulario();
+  const err = concValidar(p);
+  if(err){ caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">' + esc(err) + '</div>'; return; }
+  const yo = ++concPedido;
+  caja.innerHTML = spinnerHTML();
+  const r = await apiConciliacion('resumen', p);
+  if(yo !== concPedido) return;
+  if(!r || !r.ok){ caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">' + esc((r && r.error) || 'No se pudo calcular.') + '</div>'; return; }
+  const tarjeta = (titulo, g) => `
+    <div class="stat-card">
+      <div class="stat-label">${esc(titulo)}</div>
+      <div class="stat-value">${Number(g.conteo).toLocaleString('en-US')} bienes</div>
+      <div class="stat-sub">Valor de adquisición: ${fmtMoney(g.valor_adquisicion)}</div>
+      <div class="stat-sub">Valor actual: ${fmtMoney(g.valor_actual)}</div>
+    </div>`;
+  const fuera = (r.menores.sin_fecha_fuera || 0) + (r.mayores.sin_fecha_fuera || 0);
+  caja.innerHTML = `
+    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Bienes activos, fecha de adquisición ${esc(concTextoRango(p))}.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+      ${tarjeta('Menores a ' + concMonto(r.menor), r.menores)}
+      ${tarjeta('Mayores a ' + concMonto(r.mayor), r.mayores)}
+    </div>
+    ${fuera ? `<div class="info-note" style="margin-top:12px;">${fuera.toLocaleString('en-US')} bienes de estos montos no tienen fecha de adquisición y quedaron fuera del rango. Marca la casilla de arriba si quieres incluirlos.</div>` : ''}`;
+}
+
+function concHoja(titulo, subtitulo, items){
+  const enc = ['N°','Código','Descripción','Marca','Modelo','Serie','Unidad','Ubicación','Fuente','Reporte','Estado','Fecha de adquisición','Valor de adquisición','Valor actual'];
+  const filas = [[titulo], [subtitulo], [], enc];
+  items.forEach(function(it, i){
+    let f = null;
+    if(it.fecha_adquisicion){
+      const pz = String(it.fecha_adquisicion).slice(0,10).split('-').map(Number);
+      // Número de serie de Excel calculado en UTC: con un Date local, la librería
+      // corre la fecha un día por el desfase horario histórico de la zona.
+      f = (Date.UTC(pz[0], pz[1]-1, pz[2]) - Date.UTC(1899, 11, 30)) / 86400000;
+    }
+    filas.push([i+1, it.codigo||'', it.descripcion||'', it.marca||'', it.modelo||'', it.serie||'', it.unidad||'', it.ubicacion||'', it.fuente||'', it.reporte||'', it.estado||'', f, Number(it.valor_adquisicion)||0, Number(it.valor_actual)||0]);
+  });
+  const ini = 5, fin = 4 + items.length;
+  const totAdq = items.reduce((s,it)=>s+(Number(it.valor_adquisicion)||0),0);
+  const totAct = items.reduce((s,it)=>s+(Number(it.valor_actual)||0),0);
+  filas.push([]);
+  filas.push(['', 'Total: ' + items.length.toLocaleString('en-US') + ' bienes', '', '', '', '', '', '', '', '', '', '', Math.round(totAdq*100)/100, Math.round(totAct*100)/100]);
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  const filaTot = filas.length; // 1-based
+  if(items.length){
+    ws['M'+filaTot].f = 'SUM(M'+ini+':M'+fin+')';
+    ws['N'+filaTot].f = 'SUM(N'+ini+':N'+fin+')';
+  }
+  for(let r = ini; r <= filaTot; r++){
+    ['M','N'].forEach(function(c){ const cel = ws[c+r]; if(cel && cel.t === 'n') cel.z = '#,##0.00'; });
+    const cf = ws['L'+r]; if(cf && cf.t === 'n' && r < filaTot) cf.z = 'dd/mm/yyyy';
+  }
+  ws['!cols'] = [{wch:6},{wch:24},{wch:34},{wch:16},{wch:16},{wch:18},{wch:26},{wch:26},{wch:18},{wch:9},{wch:11},{wch:13},{wch:15},{wch:15}];
+  ws['!autofilter'] = {ref: 'A4:N' + Math.max(4, fin)};
+  return ws;
+}
+
+async function concDescargar(){
+  const btn = document.getElementById('concDescargar');
+  const p = concLeerFormulario();
+  const err = concValidar(p);
+  if(err){ toast(err, true); return; }
+  if(typeof XLSX === 'undefined'){ toast('No se pudo cargar el generador de Excel. Recarga la página e intenta de nuevo.', true); return; }
+  btn.disabled = true; const txt = btn.textContent; btn.textContent = 'Preparando…';
+  try{
+    const r = await apiConciliacion('export', p);
+    if(!r || !r.ok){ toast((r && r.error) || 'No se pudo generar el archivo.', true); return; }
+    const items = r.items || [];
+    const menores = items.filter(it => it.grupo === 'menores');
+    const mayores = items.filter(it => it.grupo === 'mayores');
+    const ahora = new Date();
+    const gen = ahora.toLocaleDateString('es-SV') + ' ' + ahora.toLocaleTimeString('es-SV', {hour:'2-digit', minute:'2-digit'});
+    const sub = 'Bienes activos · Fecha de adquisición: ' + concTextoRango(p) + (p.sin_fecha ? ' (incluye bienes sin fecha)' : '') + ' · Generado: ' + gen;
+    const wb = XLSX.utils.book_new();
+    const nom = n => String(concMonto(n)).replace(/[$,]/g, '');
+    XLSX.utils.book_append_sheet(wb, concHoja('Bienes con valor de adquisición menor a ' + concMonto(r.menor), sub, menores), ('Menores a ' + nom(r.menor)).slice(0,31));
+    XLSX.utils.book_append_sheet(wb, concHoja('Bienes con valor de adquisición mayor a ' + concMonto(r.mayor), sub, mayores), ('Mayores a ' + nom(r.mayor)).slice(0,31));
+    const datos = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+    const blob = new Blob([datos], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const nombre = 'conciliacion_' + (p.desde || 'inicio') + '_a_' + (p.hasta || 'hoy') + '.xlsx';
+    guardarArchivo(blob, nombre);
+    toast('Excel generado: ' + menores.length.toLocaleString('en-US') + ' menores y ' + mayores.length.toLocaleString('en-US') + ' mayores.');
+  }catch(e){
+    toast('No se pudo generar el Excel.', true);
+  }finally{
+    btn.disabled = false; btn.textContent = txt;
+  }
+}
 
 async function loadDeprec(){
   const el = document.getElementById('deprecScroll');
