@@ -139,7 +139,7 @@ a{color:inherit;}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ink-soft);border:1px solid transparent;}
 .nav-item svg{flex:0 0 auto;opacity:.8;}
 .nav-item:hover{background:var(--surface-alt);color:var(--ink);}
-.nav-item.active{background:var(--primary-soft);color:var(--primary-dark);border-color:#c7e3da;}
+.nav-item.active{background:var(--primary-soft);color:var(--primary-dark);border-color:var(--primary-line);}
 .nav-item .badge{margin-left:auto;font-size:11px;color:var(--ink-faint);font-variant-numeric:tabular-nums;}
 .sidebar-foot{margin-top:auto;padding:10px 12px;font-size:10.5px;color:var(--ink-faint);line-height:1.5;}
 
@@ -222,7 +222,7 @@ a{color:inherit;}
 .toma-stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center;}
 .toma-stat .ts-num{font-variant-numeric:tabular-nums;font-size:22px;font-weight:600;}
 .toma-stat .ts-lbl{font-size:11px;color:var(--ink-soft);margin-top:2px;}
-.toma-scan-box{background:var(--primary-soft);border:1px solid #c7e3da;border-radius:12px;padding:16px;margin-bottom:16px;}
+.toma-scan-box{background:var(--primary-soft);border:1px solid var(--primary-line);border-radius:12px;padding:16px;margin-bottom:16px;}
 .toma-scan-box input{width:100%;border:2px solid var(--primary);border-radius:9px;padding:13px 14px;font-size:16px;
   font-variant-numeric:tabular-nums;background:var(--surface);}
 .toma-ultimo{margin-top:10px;padding:11px 13px;border-radius:9px;font-size:13.5px;display:none;}
@@ -252,7 +252,7 @@ a{color:inherit;}
 .row-check{width:17px;height:17px;flex:0 0 auto;margin-left:6px;cursor:pointer;}
 .sel-bar{
   display:none;align-items:center;gap:12px;padding:10px 20px;background:var(--primary-soft);
-  border-bottom:1px solid #c7e3da;flex:0 0 auto;flex-wrap:wrap;
+  border-bottom:1px solid var(--primary-line);flex:0 0 auto;flex-wrap:wrap;
 }
 .sel-bar.show{display:flex;}
 .sel-bar .sel-count{font-size:13px;font-weight:600;color:var(--primary-dark);}
@@ -409,7 +409,7 @@ a{color:inherit;}
 .drop-zone .dz-title{font-weight:600;font-size:14px;margin-top:8px;}
 .drop-zone .dz-sub{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
 .info-note{
-  background:var(--primary-soft);border:1px solid #c7e3da;border-radius:9px;
+  background:var(--primary-soft);border:1px solid var(--primary-line);border-radius:9px;
   padding:12px 14px;font-size:12.5px;color:var(--primary-dark);line-height:1.55;margin-bottom:16px;
 }
 .info-note code{background:rgba(255,255,255,.7);padding:1px 5px;border-radius:4px;font-size:11.5px;}
@@ -802,6 +802,62 @@ h1,h2,h3{letter-spacing:-.015em;}
 #loginScreen #gasCargando .li-head{margin-bottom:0;grid-template-columns:28px 1fr;}
 #loginScreen #deniedLogoutBtn{text-decoration:none;justify-content:center;}
 
+/* =====================================================================
+   Paleta azul del sistema (igual a la pantalla de ingreso), 27/10/2026.
+   El azul pasa a ser el acento; el verde queda solo para el estado "Bueno".
+   El menú lateral lleva el mismo degradado azul del panel de ingreso.
+   ===================================================================== */
+:root{
+  --bg:#F2F5FA; --surface:#FFFFFF; --surface-alt:#ECF1F8; --line:#DFE5EF; --line-strong:#C9D2E1;
+  --ink:#0E1A2E; --ink-soft:#4A566E; --ink-faint:#7C879B;
+  --primary:#1F56C3; --primary-dark:#163F94; --primary-soft:#E8EFFC; --primary-line:#C3D3F3;
+  --on-primary:#FFFFFF;
+  --ok:#14804A; --ok-soft:#E3F4EA; --ok-ink:#0E5A34;
+  --placa-a:#F7F9FC; --placa-b:#E2E8F2; --placa-borde:#C3CDDD; --placa-tinta:#24324A;
+  --shadow: 0 12px 32px rgba(14,26,46,.12), 0 2px 6px rgba(14,26,46,.06);
+  --shadow-sm: 0 1px 2px rgba(14,26,46,.06);
+  --overlay: rgba(9,18,36,.45);
+  --azul-a:#0b2457; --azul-b:#123a86; --azul-c:#1a4ea8;
+}
+:root[data-theme="dark"]{
+  --bg:#17181B; --surface:#1F2023; --surface-alt:#282A2E; --line:#33353A; --line-strong:#43464C;
+  --ink:#EEF0F3; --ink-soft:#A5ABB5; --ink-faint:#7E848E;
+  --primary:#4D82E8; --primary-dark:#93B4F4; --primary-soft:#1B2A47; --primary-line:#2B4A85;
+  --on-primary:#FFFFFF;
+  --ok:#3CC47C; --ok-soft:#163323; --ok-ink:#8FDDB2;
+  --placa-a:#2C2F35; --placa-b:#23252A; --placa-borde:#45484F; --placa-tinta:#DDE3EE;
+  --azul-a:#081b42; --azul-b:#0e2d6a; --azul-c:#143d87;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17181B; --surface:#1F2023; --surface-alt:#282A2E; --line:#33353A; --line-strong:#43464C;
+    --ink:#EEF0F3; --ink-soft:#A5ABB5; --ink-faint:#7E848E;
+    --primary:#4D82E8; --primary-dark:#93B4F4; --primary-soft:#1B2A47; --primary-line:#2B4A85;
+    --on-primary:#FFFFFF;
+    --ok:#3CC47C; --ok-soft:#163323; --ok-ink:#8FDDB2;
+    --placa-a:#2C2F35; --placa-b:#23252A; --placa-borde:#45484F; --placa-tinta:#DDE3EE;
+    --azul-a:#081b42; --azul-b:#0e2d6a; --azul-c:#143d87;
+  }
+}
+/* Menú lateral: degradado azul del ingreso */
+.sidebar{background:linear-gradient(175deg,var(--azul-a) 0%,var(--azul-b) 58%,var(--azul-c) 100%);border-right:none;}
+.sidebar .nav-grupo{color:#8FA6D4;}
+.sidebar .nav-item{color:#D3DEF3;}
+.sidebar .nav-item svg{opacity:.85;}
+.sidebar .nav-item:hover{background:rgba(255,255,255,.09);color:#fff;}
+.sidebar .nav-item.active{background:rgba(255,255,255,.15);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);}
+.sidebar .nav-item.active::before{background:#8DB6FF;}
+.sidebar .nav-item .badge{color:#A9BBE0;}
+.sidebar .sidebar-foot{color:#8FA6D4;}
+/* Marca: el logo en cuadro azul, como en el ingreso */
+.topbar .brand .tag-icon{width:36px;height:36px;padding:8px;border-radius:10px;background:var(--primary);box-shadow:0 4px 12px rgba(31,86,195,.25);}
+.topbar .brand .tag-icon path{fill:#fff !important;}
+.topbar .brand .tag-icon circle{fill:var(--primary) !important;}
+.topbar .avatar,.user-chip .avatar,#userAvatar{background:var(--primary);color:#fff;}
+@media (max-width:900px){
+  .topbar .brand .tag-icon{width:30px;height:30px;padding:6px;border-radius:8px;}
+}
+
 </style>
 </head>
 <body>
@@ -1021,7 +1077,7 @@ h1,h2,h3{letter-spacing:-.015em;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 15:00</span>
+      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 19:00</span>
     </div>
   </div>
 
@@ -1382,9 +1438,9 @@ const FIELD_LABELS = {
   observacion:'Observación', caracteristica:'Característica', reporte:'Reporte / Unidad ejecutora'
 };
 const ESTADOS = ['Bueno','Regular','Malo','Inservible'];
-const ESTADO_COLOR = {Bueno:'var(--primary)', Regular:'var(--amber)', Malo:'var(--rust)', Inservible:'var(--graphite)'};
+const ESTADO_COLOR = {Bueno:'var(--ok)', Regular:'var(--amber)', Malo:'var(--rust)', Inservible:'var(--graphite)'};
 const ESTADO_BADGE = {
-  Bueno:'background:var(--primary-soft);color:var(--primary-dark);',
+  Bueno:'background:var(--ok-soft);color:var(--ok-ink);',
   Regular:'background:var(--amber-soft);color:var(--amber-ink);',
   Malo:'background:var(--rust-soft);color:var(--rust-ink);',
   Inservible:'background:var(--graphite-soft);color:var(--graphite-ink);'
