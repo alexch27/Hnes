@@ -11,32 +11,49 @@
 <title>Activo Fijo · Hospital Nacional El Salvador</title>
 <!-- publicacion automatica activa desde 2026-09-09 -->
 <link rel="icon" href="data:,">
+<script>try{var t=localStorage.getItem("af_tema");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 :root{
-  --bg:#F1F4F2;
+  /* Superficies y tinta */
+  --bg:#F3F6F5;
   --surface:#FFFFFF;
-  --surface-alt:#E7EDE9;
-  --line:#D8E0DB;
-  --ink:#12241F;
-  --ink-soft:#52655F;
-  --ink-faint:#8CA098;
-  --primary:#1B6E63;
-  --primary-dark:#0E4740;
-  --primary-soft:#E1F0EB;
-  --amber:#B9761F;
-  --amber-soft:#FBEEDC;
-  --rust:#A5392F;
-  --rust-soft:#F5E2DF;
-  --graphite:#5B4A45;
-  --graphite-soft:#EDE6E2;
-  --shadow: 0 8px 30px rgba(18,36,31,0.10);
-  --shadow-sm: 0 2px 8px rgba(18,36,31,0.08);
+  --surface-alt:#EDF2F0;
+  --line:#E0E7E4;
+  --line-strong:#CBD6D1;
+  --ink:#0F211D;
+  --ink-soft:#4A5E58;
+  --ink-faint:#7F938C;
+  /* Verde del hospital: unico acento */
+  --primary:#0B7A6A;
+  --primary-dark:#075C50;
+  --primary-soft:#E4F3EF;
+  --primary-line:#BFE2D9;
+  /* Estados */
+  --amber:#B26A00;
+  --amber-soft:#FDF1DE;
+  --amber-ink:#6E4300;
+  --amber-line:#F0D9B0;
+  --rust:#B4382C;
+  --rust-soft:#FBE9E6;
+  --rust-ink:#7A231B;
+  --rust-line:#EFC9C3;
+  --graphite:#5E5250;
+  --graphite-soft:#EEEAE8;
+  --graphite-ink:#3B302E;
+  --on-primary:#FFFFFF;
+  /* La placa de inventario */
+  --placa-a:#F7F9F8; --placa-b:#E3E9E6; --placa-borde:#C5D0CB; --placa-tinta:#2A3B36;
+  --shadow: 0 12px 32px rgba(15,33,29,.12), 0 2px 6px rgba(15,33,29,.06);
+  --shadow-sm: 0 1px 2px rgba(15,33,29,.06);
+  --overlay: rgba(10,22,19,.42);
   --radius: 10px;
-  --topbar-h: 60px;
-  --sidebar-w: 220px;
+  --topbar-h: 58px;
+  --sidebar-w: 236px;
+  color-scheme: light;
 }
+
 *{box-sizing:border-box;}
 html,body{height:100%;}
 body{
@@ -44,11 +61,12 @@ body{
   overflow-x:hidden;
   background:var(--bg);
   color:var(--ink);
-  font-family:'IBM Plex Sans',system-ui,sans-serif;
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-feature-settings:'cv11','ss01';
   -webkit-font-smoothing:antialiased;
   overflow:hidden;
 }
-.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+.mono{font-variant-numeric:tabular-nums;}
+.codigo-font{font-family:'IBM Plex Mono',ui-monospace,monospace;}
 button{font-family:inherit;}
 a{color:inherit;}
 ::selection{background:var(--primary-soft);}
@@ -102,7 +120,7 @@ a{color:inherit;}
 .user-menu.show{opacity:1;transform:translateY(0);pointer-events:auto;}
 .user-menu .um-head{padding:9px 11px 8px;border-bottom:1px solid var(--line);margin-bottom:4px;}
 .user-menu .um-name{font-size:13px;font-weight:600;}
-.user-menu .um-mail{font-size:11px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;word-break:break-all;}
+.user-menu .um-mail{font-size:11px;color:var(--ink-faint);font-variant-numeric:tabular-nums;word-break:break-all;}
 .user-menu button{
   display:flex;align-items:center;gap:10px;width:100%;border:none;background:transparent;
   padding:9px 11px;border-radius:7px;font-size:13.5px;color:var(--ink);cursor:pointer;text-align:left;
@@ -122,7 +140,7 @@ a{color:inherit;}
 .nav-item svg{flex:0 0 auto;opacity:.8;}
 .nav-item:hover{background:var(--surface-alt);color:var(--ink);}
 .nav-item.active{background:var(--primary-soft);color:var(--primary-dark);border-color:#c7e3da;}
-.nav-item .badge{margin-left:auto;font-size:11px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
+.nav-item .badge{margin-left:auto;font-size:11px;color:var(--ink-faint);font-variant-numeric:tabular-nums;}
 .sidebar-foot{margin-top:auto;padding:10px 12px;font-size:10.5px;color:var(--ink-faint);line-height:1.5;}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;}
@@ -180,7 +198,7 @@ a{color:inherit;}
 .search-row{display:flex;gap:10px;align-items:center;}
 .search-box{flex:1;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;}
 .search-box svg{flex:0 0 auto;color:var(--ink-faint);}
-.search-box input{border:none;background:transparent;outline:none;font-size:14px;flex:1;color:var(--ink);font-family:'IBM Plex Sans',sans-serif;}
+.search-box input{border:none;background:transparent;outline:none;font-size:14px;flex:1;color:var(--ink);font-family:inherit;}
 .search-box input::placeholder{color:var(--ink-faint);}
 .btn{display:inline-flex;align-items:center;gap:7px;justify-content:center;padding:9px 15px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.15s;}
 .btn:hover{background:var(--surface-alt);}
@@ -202,11 +220,11 @@ a{color:inherit;}
 .chip-divider{width:1px;height:18px;background:var(--line);margin:0 2px;}
 .toma-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px;}
 .toma-stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center;}
-.toma-stat .ts-num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;}
+.toma-stat .ts-num{font-variant-numeric:tabular-nums;font-size:22px;font-weight:600;}
 .toma-stat .ts-lbl{font-size:11px;color:var(--ink-soft);margin-top:2px;}
 .toma-scan-box{background:var(--primary-soft);border:1px solid #c7e3da;border-radius:12px;padding:16px;margin-bottom:16px;}
 .toma-scan-box input{width:100%;border:2px solid var(--primary);border-radius:9px;padding:13px 14px;font-size:16px;
-  font-family:'IBM Plex Mono',monospace;background:var(--surface);}
+  font-variant-numeric:tabular-nums;background:var(--surface);}
 .toma-ultimo{margin-top:10px;padding:11px 13px;border-radius:9px;font-size:13.5px;display:none;}
 .toma-ultimo.show{display:block;}
 .tabs-res{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
@@ -219,13 +237,13 @@ a{color:inherit;}
 .filtros-panel.show{display:block;}
 .filtros-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px;}
 .filtros-grid label{display:block;font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
-.filtros-grid select,.filtros-grid input{width:100%;border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:13px;background:var(--surface);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;}
+.filtros-grid select,.filtros-grid input{width:100%;border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:13px;background:var(--surface);color:var(--ink);font-family:inherit;}
 .filtros-grid select:focus,.filtros-grid input:focus{border-color:var(--primary);outline:none;}
 @media (max-width:900px){.filtros-grid{grid-template-columns:1fr 1fr;}}
 .sort-select{margin-left:auto;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px;background:var(--surface);color:var(--ink-soft);}
 
 .results-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:12.5px;color:var(--ink-soft);flex:0 0 auto;}
-.results-bar .count b{color:var(--ink);font-family:'IBM Plex Mono',monospace;}
+.results-bar .count b{color:var(--ink);font-variant-numeric:tabular-nums;}
 
 .list-scroll{flex:1;overflow-y:auto;padding:0 20px 20px;background:repeating-linear-gradient(var(--bg) 0 47px, #e9efeb 47px 48px);background-color:var(--bg);}
 .row-card{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:.12s;position:relative;}
@@ -243,14 +261,14 @@ a{color:inherit;}
 .descargo-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--graphite-soft);color:#3f332f;text-transform:uppercase;letter-spacing:.03em;}
 .row-card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--estado-color, var(--ink-faint));}
 .row-main{min-width:0;flex:1;padding-left:8px;}
-.row-code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);letter-spacing:.02em;margin-bottom:3px;}
+.row-code{font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--ink-faint);letter-spacing:.02em;margin-bottom:3px;}
 .row-desc{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .row-meta{font-size:12px;color:var(--ink-soft);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .row-meta span+span::before{content:' · ';color:var(--ink-faint);}
 .row-side{flex:0 0 auto;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
-.row-value{font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;color:var(--ink);}
+.row-value{font-variant-numeric:tabular-nums;font-size:13.5px;font-weight:600;color:var(--ink);}
 .estado-badge{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
-.row-tag{font-size:10px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
+.row-tag{font-size:10px;color:var(--ink-faint);font-variant-numeric:tabular-nums;}
 
 .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--ink-faint);padding:40px;text-align:center;}
 .empty-state svg{opacity:.5;}
@@ -258,7 +276,7 @@ a{color:inherit;}
 .empty-state p{margin:0;font-size:13px;max-width:340px;}
 
 .pagination{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-top:1px solid var(--line);background:var(--surface);}
-.pagination .page-info{font-size:12.5px;color:var(--ink-soft);margin:0 10px;font-family:'IBM Plex Mono',monospace;}
+.pagination .page-info{font-size:12.5px;color:var(--ink-soft);margin:0 10px;font-variant-numeric:tabular-nums;}
 
 .fab{position:absolute;right:24px;bottom:24px;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;border:none;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;transition:.15s;}
 .fab:hover{background:var(--primary-dark);transform:translateY(-2px);}
@@ -268,7 +286,7 @@ a{color:inherit;}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:26px;}
 .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
 .stat-card .stat-label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;font-weight:600;}
-.stat-card .stat-value{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--ink);margin-top:6px;}
+.stat-card .stat-value{font-variant-numeric:tabular-nums;font-size:24px;font-weight:600;color:var(--ink);margin-top:6px;}
 .stat-card .stat-sub{font-size:11.5px;color:var(--ink-faint);margin-top:4px;}
 
 .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -278,7 +296,7 @@ a{color:inherit;}
 .bar-row{margin-bottom:11px;}
 .bar-row .bar-label{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;}
 .bar-row .bar-label span:first-child{color:var(--ink);font-weight:500;}
-.bar-row .bar-label span:last-child{color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+.bar-row .bar-label span:last-child{color:var(--ink-soft);font-variant-numeric:tabular-nums;font-size:11.5px;}
 .bar-track{height:7px;border-radius:4px;background:var(--surface-alt);overflow:hidden;}
 .bar-fill{height:100%;border-radius:4px;background:var(--primary);}
 
@@ -295,7 +313,7 @@ a{color:inherit;}
 .audit-row .a-body{min-width:0;flex:1;}
 .audit-row .a-top{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;}
 .audit-row .a-user{font-weight:600;color:var(--ink);}
-.audit-row .a-time{color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;font-size:11px;white-space:nowrap;}
+.audit-row .a-time{color:var(--ink-faint);font-variant-numeric:tabular-nums;font-size:11px;white-space:nowrap;}
 .audit-row .a-accion{font-size:12px;color:var(--primary-dark);font-weight:600;margin-top:2px;}
 .audit-row .a-detalle{font-size:12.5px;color:var(--ink-soft);margin-top:3px;line-height:1.4;word-break:break-word;}
 
@@ -312,15 +330,15 @@ a{color:inherit;}
 .field-view{margin-bottom:16px;}
 .field-view .fv-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);font-weight:600;margin-bottom:3px;}
 .field-view .fv-value{font-size:14px;color:var(--ink);line-height:1.45;}
-.field-view .fv-value.mono{font-family:'IBM Plex Mono',monospace;}
+.field-view .fv-value.mono{font-variant-numeric:tabular-nums;}
 .field-view .fv-value.empty{color:var(--ink-faint);font-style:italic;}
 .field-view .fv-meta{font-size:11px;color:var(--ink-faint);margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
 
 .form-field{margin-bottom:14px;}
 .form-field label{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
-.form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid var(--line);border-radius:7px;padding:9px 10px;font-size:13.5px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:var(--surface);}
+.form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid var(--line);border-radius:7px;padding:9px 10px;font-size:13.5px;font-family:inherit;color:var(--ink);background:var(--surface);}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--primary);outline:none;}
-.form-field textarea{resize:vertical;min-height:56px;font-family:'IBM Plex Sans',sans-serif;}
+.form-field textarea{resize:vertical;min-height:56px;font-family:inherit;}
 .form-field.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .form-field .hint{font-size:11px;color:var(--ink-faint);margin-top:4px;}
 .form-field .err{font-size:11.5px;color:var(--rust);margin-top:4px;display:none;}
@@ -338,7 +356,7 @@ a{color:inherit;}
 .user-card .u-avatar{width:38px;height:38px;border-radius:50%;background:var(--primary-soft);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:0 0 auto;}
 .user-card .u-body{flex:1 1 260px;min-width:220px;}
 .user-card .u-name{font-weight:600;font-size:14px;}
-.user-card .u-mail{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;overflow-wrap:anywhere;word-break:normal;}
+.user-card .u-mail{font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;word-break:normal;}
 /* Los botones no deben aplastar el texto: en pantalla angosta bajan a su propia linea. */
 .user-card .u-acciones{display:flex;gap:8px;flex:0 1 auto;min-width:0;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
 /* Solicitudes de contrasena olvidada: el texto no se debe aplastar contra los botones. */
@@ -400,7 +418,7 @@ a{color:inherit;}
 .preview-table th{background:var(--surface-alt);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);}
 .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:14px 0;}
 .result-cell{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:12px 14px;text-align:center;}
-.result-cell .rc-num{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;}
+.result-cell .rc-num{font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;}
 .result-cell .rc-lbl{font-size:11px;color:var(--ink-soft);margin-top:2px;}
 .progress-track{height:8px;background:var(--surface-alt);border-radius:5px;overflow:hidden;margin-top:12px;}
 .progress-fill{height:100%;background:var(--primary);transition:width .2s;}
@@ -456,9 +474,9 @@ a{color:inherit;}
 .scan-manual{display:flex;gap:8px;}
 .scan-manual input{
   flex:1;min-width:0;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);
-  color:#fff;border-radius:8px;padding:11px 12px;font-size:14px;font-family:'IBM Plex Mono',monospace;
+  color:#fff;border-radius:8px;padding:11px 12px;font-size:14px;font-variant-numeric:tabular-nums;
 }
-.scan-manual input::placeholder{color:rgba(255,255,255,.5);font-family:'IBM Plex Sans',sans-serif;}
+.scan-manual input::placeholder{color:rgba(255,255,255,.5);font-family:inherit;}
 @media (max-width:900px){ .lbl-scan{display:none;} }
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);z-index:300;opacity:0;pointer-events:none;transition:.2s;display:flex;align-items:center;gap:8px;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -534,7 +552,7 @@ a{color:inherit;}
 .tab-leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-bottom:8px;}
 .tab-graf{position:relative;}
 .tab-svg{width:100%;height:auto;display:block;}
-.tab-eje{font-size:11px;fill:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+.tab-eje{font-size:11px;fill:var(--ink-soft);font-variant-numeric:tabular-nums;}
 .tab-hit{cursor:pointer;}
 .tab-hit.activo{fill:rgba(18,36,31,.05);}
 .tab-tip{display:none;position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.08);white-space:nowrap;}
@@ -543,6 +561,184 @@ a{color:inherit;}
 .tab-tabla th:first-child,.tab-tabla td:first-child{text-align:left;}
 .tab-tabla th{color:var(--ink-soft);font-weight:600;}
 .tab-cobertura{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft);}
+
+/* =====================================================================
+   Interfaz moderna (27/10/2026)
+   Va al final a proposito: refina los componentes de arriba sin tocar la
+   logica. El modo oscuro redefine solo los tokens.
+   ===================================================================== */
+body{font-size:14px;line-height:1.45;letter-spacing:-.005em;}
+h1,h2,h3{letter-spacing:-.015em;}
+
+/* ---- Barra superior ---- */
+.topbar{background:color-mix(in srgb, var(--surface) 88%, transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);gap:12px;padding:0 20px;}
+.topbar .brand-title{font-size:17px;font-weight:700;letter-spacing:-.02em;color:var(--ink);}
+.topbar .brand-sub{font-size:11.5px;color:var(--ink-faint);}
+.tag-icon{width:30px;height:30px;}
+.topbar .live-stat{gap:18px;font-size:12.5px;}
+.topbar .live-stat b{font-variant-numeric:tabular-nums;}
+.icon-btn{border-radius:10px;}
+.user-chip{padding:4px 10px 4px 4px;}
+.user-chip .avatar{width:28px;height:28px;font-size:11.5px;background:var(--primary);color:var(--on-primary);}
+.user-chip .uname{font-size:13px;font-weight:600;}
+.user-chip .urole{font-size:11px;}
+.user-menu{border-radius:14px;box-shadow:var(--shadow);padding:6px;}
+.user-menu button{border-radius:9px;font-size:13.5px;}
+.user-menu .um-mail{font-family:inherit;}
+
+/* ---- Menu lateral agrupado ---- */
+.sidebar{padding:14px 12px;gap:1px;overflow-y:auto;background:var(--surface);}
+.nav-grupo{font-size:11.5px;font-weight:600;color:var(--ink-faint);padding:14px 12px 6px;}
+.nav-grupo:first-child{padding-top:2px;}
+.nav-item{position:relative;padding:8px 12px;border-radius:9px;font-size:13.5px;color:var(--ink-soft);border:none;}
+.nav-item svg{opacity:.75;}
+.nav-item:hover{background:var(--surface-alt);color:var(--ink);}
+.sidebar .nav-item.active{background:var(--primary-soft);color:var(--primary-dark);font-weight:600;border:none;}
+.sidebar .nav-item.active::before{content:'';position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--primary);}
+.sidebar .nav-item.active svg{opacity:1;}
+
+/* ---- Botones, campos y chips ---- */
+.btn{border-radius:10px;padding:9px 14px;font-weight:600;font-size:13px;border-color:var(--line-strong);transition:background .12s,border-color .12s,color .12s;}
+.btn:hover{background:var(--surface-alt);border-color:var(--ink-faint);}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary);}
+.btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);}
+.btn-danger{color:var(--on-primary);}
+.btn-sm{padding:6px 10px;font-size:12.5px;border-radius:8px;}
+.search-box{background:var(--surface);border-color:var(--line-strong);border-radius:12px;padding:10px 14px;transition:border-color .12s, box-shadow .12s;}
+.search-box:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);}
+.form-field label{font-size:12.5px;font-weight:600;color:var(--ink);}
+.form-field input,.form-field select,.form-field textarea,.filtros-grid select,.filtros-grid input,.sort-select{border-color:var(--line-strong);border-radius:10px;padding:10px 12px;font-size:14px;background:var(--surface);color:var(--ink);}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus,.filtros-grid select:focus,.filtros-grid input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);}
+.filtros-grid label,.filtros-seccion .fs-tit{text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink);}
+.filtros-panel{background:var(--surface-alt);border-radius:14px;}
+.chip{border-color:var(--line-strong);font-size:12.5px;padding:6px 12px;}
+.chip.active{background:var(--primary);border-color:var(--primary);color:var(--on-primary);}
+#toggleFiltros.abierto{background:var(--primary);border-color:var(--primary);color:var(--on-primary);}
+.seg-control{border-radius:10px;}
+.seg-control button.active{box-shadow:var(--shadow-sm);}
+
+/* ---- Inventario: filas y la placa ---- */
+.toolbar{background:var(--surface);padding:16px 24px 12px;}
+.results-bar{padding:12px 24px;}
+.list-scroll{background:var(--bg);padding:0 24px 24px;}
+.row-card{border-radius:12px;padding:12px 16px;gap:14px;border-color:var(--line);}
+.row-card:hover{border-color:var(--line-strong);box-shadow:var(--shadow-sm);}
+.row-card.selected{border-color:var(--primary);background:var(--primary-soft);}
+.row-card::before{left:-1px;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;}
+.row-desc{font-size:14.5px;font-weight:600;}
+.row-meta{font-size:12.5px;}
+.row-value{font-variant-numeric:tabular-nums;font-size:14px;}
+/* La placa de inventario: como la viñeta metalica pegada al equipo */
+.row-code,.placa{
+  display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;
+  font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:600;font-size:11.5px;letter-spacing:.04em;
+  color:var(--placa-tinta);padding:2px 8px 2px 6px;margin-bottom:5px;border-radius:5px;
+  background:linear-gradient(180deg,var(--placa-a),var(--placa-b));
+  border:1px solid var(--placa-borde);box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.row-code::before,.placa::before{content:'';flex:0 0 auto;width:5px;height:5px;border-radius:50%;
+  background:var(--placa-borde);box-shadow:inset 0 1px 1px rgba(0,0,0,.25);}
+.placa{font-size:13px;padding:4px 10px 4px 8px;margin:0;}
+.estado-badge,.descargo-badge,.role-pill,.locked-pill{text-transform:none;letter-spacing:0;font-size:11.5px;font-weight:600;padding:3px 9px;}
+.pagination{background:var(--surface);}
+.fab{border-radius:16px;width:54px;height:54px;}
+
+/* ---- Tarjetas, paneles y titulos ---- */
+.stat-card{border-radius:14px;padding:16px 18px;}
+.stat-card .stat-label{text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;color:var(--ink-soft);}
+.stat-card .stat-value{font-family:inherit;font-variant-numeric:tabular-nums;font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:4px;}
+.panel{border-radius:14px;padding:20px 22px;}
+.panel h3{text-transform:none;letter-spacing:-.01em;font-size:15px;font-weight:650;color:var(--ink);}
+.field-view .fv-label{text-transform:none;letter-spacing:0;font-size:12px;font-weight:500;color:var(--ink-faint);}
+.preview-table th{text-transform:none;letter-spacing:0;font-size:12px;}
+.user-card,.audit-row,.toma-stat,.result-cell,.file-pill,.drop-zone{border-radius:12px;}
+.user-card .u-mail,.audit-row .a-time{font-family:inherit;}
+.info-note{border-radius:12px;border-color:var(--primary-line);}
+.info-note code{background:color-mix(in srgb, var(--surface) 70%, transparent);}
+.trash-note,.denied-box{border-color:var(--amber-line);color:var(--amber-ink);border-radius:10px;}
+.login-card .err-box{color:var(--rust-ink);border-color:var(--rust-line);}
+.toma-scan-box{border-color:var(--primary-line);border-radius:14px;}
+.toma-scan-box input,.scan-manual input{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+.sel-bar{border-bottom-color:var(--primary-line);}
+.attach-link:hover{background:var(--primary-line);}
+.resumen-scroll,.admin-scroll{padding:24px 28px 48px;}
+
+/* ---- Capas que flotan: aqui si hay sombra ---- */
+.overlay{background:var(--overlay);}
+.drawer{box-shadow:var(--shadow);border-left:1px solid var(--line);}
+.drawer-head .dh-title{font-size:16px;letter-spacing:-.01em;}
+#toast{border-radius:12px;box-shadow:var(--shadow);font-weight:500;}
+#asisFab{border-radius:14px;}
+
+/* ---- Inicio de sesion ---- */
+.login-card{border-radius:20px;padding:36px 30px;box-shadow:var(--shadow);}
+.login-card .li-title{letter-spacing:-.02em;font-size:24px;color:var(--ink);}
+
+/* ---- Telefono ---- */
+@media (max-width:900px){
+  .topbar{padding:0 14px;}
+  .topbar .brand-title{font-size:16px;letter-spacing:-.02em;}
+  .mobile-tabs{gap:6px;padding:8px 12px;background:var(--surface);}
+  .mobile-tabs .nav-item{border:1px solid var(--line-strong);border-radius:999px;padding:7px 13px;}
+  .mobile-tabs .nav-item.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary);}
+  .mobile-tabs .nav-item.active svg{color:var(--on-primary);}
+  .toolbar{padding:12px 14px 10px;}
+  .list-scroll{padding:0 12px 16px;}
+  .results-bar{padding:10px 14px;}
+  .resumen-scroll,.admin-scroll{padding:18px 16px 40px;}
+  .drawer{border-radius:20px 20px 0 0;border-left:none;}
+}
+
+/* ---- Movimiento: solo lo que responde a una accion ---- */
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation-duration:.01ms !important;}
+}
+
+/* ---- Modo oscuro: tokens propios, no un negativo del claro ---- */
+:root[data-theme="dark"]{
+  --bg:#0B1311; --surface:#111B18; --surface-alt:#182521; --line:#22332E; --line-strong:#2E433D;
+  --ink:#E3ECE9; --ink-soft:#A5B7B1; --ink-faint:#71857E;
+  --primary:#34B49F; --primary-dark:#7DD6C6; --primary-soft:#123029; --primary-line:#1E4A40;
+  --amber:#E2A24A; --amber-soft:#2C2312; --amber-ink:#F1C98C; --amber-line:#4A3A1C;
+  --rust:#EE7A6C; --rust-soft:#321A17; --rust-ink:#F5B2A9; --rust-line:#5A2B25;
+  --graphite:#B4A6A2; --graphite-soft:#2A2422; --graphite-ink:#DDD2CF;
+  --on-primary:#06231E;
+  --placa-a:#2A3834; --placa-b:#1D2926; --placa-borde:#3E524C; --placa-tinta:#D6E2DE;
+  --shadow: 0 16px 40px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --overlay: rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1311; --surface:#111B18; --surface-alt:#182521; --line:#22332E; --line-strong:#2E433D;
+    --ink:#E3ECE9; --ink-soft:#A5B7B1; --ink-faint:#71857E;
+    --primary:#34B49F; --primary-dark:#7DD6C6; --primary-soft:#123029; --primary-line:#1E4A40;
+    --amber:#E2A24A; --amber-soft:#2C2312; --amber-ink:#F1C98C; --amber-line:#4A3A1C;
+    --rust:#EE7A6C; --rust-soft:#321A17; --rust-ink:#F5B2A9; --rust-line:#5A2B25;
+    --graphite:#B4A6A2; --graphite-soft:#2A2422; --graphite-ink:#DDD2CF;
+    --on-primary:#06231E;
+    --placa-a:#2A3834; --placa-b:#1D2926; --placa-borde:#3E524C; --placa-tinta:#D6E2DE;
+    --shadow: 0 16px 40px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    --overlay: rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+}
+/* En oscuro, la placa pierde el brillo superior y el QR conserva fondo blanco */
+:root[data-theme="dark"] .row-code,:root[data-theme="dark"] .placa{box-shadow:none;}
+#segQR{background:#fff !important;}
+.btn-danger:hover{background:color-mix(in srgb, var(--rust) 82%, var(--ink));border-color:color-mix(in srgb, var(--rust) 82%, var(--ink));}
+@media (max-width:520px){
+  .pagination{gap:4px;padding:10px 8px;}
+  .pagination .page-info{margin:0 4px;font-size:12px;white-space:nowrap;}
+  .pagination .btn{padding:6px 9px;}
+}
+/* Selectores y campos sin clase propia: siempre con los colores del tema */
+:where(select,input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea){background-color:var(--surface);color:var(--ink);}
+#pageSizeSelect{border-color:var(--line-strong) !important;border-radius:8px !important;padding:4px 8px !important;}
+.tab-alerta-nivel{text-transform:none;letter-spacing:0;font-size:12px;}
 
 </style>
 </head>
@@ -553,9 +749,9 @@ a{color:inherit;}
   <div class="login-card" id="loginCard">
     <div class="li-head">
       <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" style="fill:var(--primary)"/><circle cx="12" cy="12" r="3" style="fill:var(--surface)"/>
       </svg>
-      <div class="li-title">ACTIVO FIJO</div>
+      <div class="li-title">Activo Fijo</div>
       <div class="li-sub">Hospital Nacional El Salvador</div>
     </div>
     <div class="err-box" id="loginErr"></div>
@@ -588,7 +784,7 @@ a{color:inherit;}
   <div class="login-card" id="mfaCard" style="display:none;">
     <div class="li-head">
       <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" style="fill:var(--primary)"/><circle cx="12" cy="12" r="3" style="fill:var(--surface)"/>
       </svg>
       <div class="li-title">VERIFICACIÓN</div>
       <div class="li-sub">Escribí el código de tu teléfono</div>
@@ -613,7 +809,7 @@ a{color:inherit;}
   <div class="login-card" id="olvideCard" style="display:none;">
     <div class="li-head">
       <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" style="fill:var(--primary)"/><circle cx="12" cy="12" r="3" style="fill:var(--surface)"/>
       </svg>
       <div class="li-title">RECUPERAR ACCESO</div>
     </div>
@@ -640,7 +836,7 @@ a{color:inherit;}
   <div class="login-card" id="codigoCard" style="display:none;">
     <div class="li-head">
       <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" style="fill:var(--primary)"/><circle cx="12" cy="12" r="3" style="fill:var(--surface)"/>
       </svg>
       <div class="li-title">NUEVA CONTRASEÑA</div>
     </div>
@@ -676,9 +872,9 @@ a{color:inherit;}
   <div class="login-card" id="deniedCard" style="display:none;">
     <div class="li-head">
       <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" style="fill:var(--primary)"/><circle cx="12" cy="12" r="3" style="fill:var(--surface)"/>
       </svg>
-      <div class="li-title">ACTIVO FIJO</div>
+      <div class="li-title">Activo Fijo</div>
     </div>
     <div class="denied-box" id="deniedMsg">Tu cuenta no tiene acceso a este módulo.</div>
     <button class="btn" id="deniedLogoutBtn" style="width:100%;">Cerrar sesión</button>
@@ -689,11 +885,11 @@ a{color:inherit;}
   <div class="topbar">
     <div class="brand">
       <svg class="tag-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" fill="#1B6E63"/><circle cx="12" cy="12" r="3" fill="#F1F4F2"/>
+        <path d="M6 6 L22 6 L34 18 L18 34 L6 22 Z" style="fill:var(--primary)"/><circle cx="12" cy="12" r="3" style="fill:var(--surface)"/>
       </svg>
       <div class="brand-text">
         <div class="brand-title-row">
-          <span class="brand-title">ACTIVO FIJO</span>
+          <span class="brand-title">Activo Fijo</span>
         </div>
         <div class="brand-sub">Hospital Nacional El Salvador</div>
       </div>
@@ -737,6 +933,10 @@ a{color:inherit;}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Descargar respaldo
     </button>
+    <button id="umTema">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      <span id="umTemaTxt">Tema: automático</span>
+    </button>
     <div class="um-sep"></div>
     <button class="danger" id="umLogout">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -744,7 +944,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 10:00</span>
+      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 12:00</span>
     </div>
   </div>
 
@@ -769,7 +969,7 @@ a{color:inherit;}
             </button>
             <button class="btn" id="toggleFiltros">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 5h18M6 12h12M10 19h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              Filtros<span id="filtrosActivos" style="display:none;background:var(--primary);color:#fff;border-radius:999px;padding:1px 7px;font-size:11px;margin-left:2px;"></span>
+              Filtros<span id="filtrosActivos" style="display:none;background:var(--primary);color:var(--on-primary);border-radius:999px;padding:1px 7px;font-size:11px;margin-left:2px;"></span>
               <svg class="chev-f" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <button class="btn" id="exportInv" title="Exportar los artículos que coinciden con los filtros">
@@ -874,7 +1074,7 @@ a{color:inherit;}
       <!-- PAPELERA -->
       <div class="view" id="view-papelera">
         <div class="trash-note">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="#7a5316" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="var(--amber-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span>Los artículos eliminados quedan aquí. Puedes restaurarlos en cualquier momento.</span>
         </div>
         <div class="list-scroll" id="trashScroll" style="padding-top:14px;"></div>
@@ -1108,9 +1308,9 @@ const ESTADOS = ['Bueno','Regular','Malo','Inservible'];
 const ESTADO_COLOR = {Bueno:'var(--primary)', Regular:'var(--amber)', Malo:'var(--rust)', Inservible:'var(--graphite)'};
 const ESTADO_BADGE = {
   Bueno:'background:var(--primary-soft);color:var(--primary-dark);',
-  Regular:'background:var(--amber-soft);color:#7a5316;',
-  Malo:'background:var(--rust-soft);color:#7a281f;',
-  Inservible:'background:var(--graphite-soft);color:#3f332f;'
+  Regular:'background:var(--amber-soft);color:var(--amber-ink);',
+  Malo:'background:var(--rust-soft);color:var(--rust-ink);',
+  Inservible:'background:var(--graphite-soft);color:var(--graphite-ink);'
 };
 const REPORTES = ['0866','2038','3036','NUEVO'];
 const REPORTE_LABEL = {'0866':'Reporte 0866','2038':'Reporte 2038','3036':'Reporte 3036','NUEVO':'Nuevo ingreso'};
@@ -1414,9 +1614,24 @@ function renderNav(){
       if(b) b.style.display = puedeCargarArchivo ? '' : 'none';
     });
   })();
-  const items = navItemsForRole();
+  let items = navItemsForRole();
+  // Agrupado: Operacion, Analisis y Administracion (el orden de cada grupo es fijo).
+  const GRUPOS = [['Operación',['inventario','toma','descargados','traslados','papelera']],
+                  ['Análisis',['tablero','resumen','conciliacion','depreciacion','asistente']],
+                  ['Administración',['importar','usuarios','respaldos','auditoria']]];
+  const porId = {}; items.forEach(n=>{ porId[n.id]=n; });
+  const usados = new Set(); const ordenados = []; let html = '';
+  const item = n=>`<div class="nav-item ${currentView===n.id?'active':''}" data-nav="${n.id}">${n.icon}${n.label}</div>`;
+  GRUPOS.forEach(([titulo, ids])=>{
+    const g = ids.filter(id=>porId[id]).map(id=>porId[id]);
+    if(!g.length) return;
+    html += `<div class="nav-grupo">${titulo}</div>` + g.map(item).join('');
+    g.forEach(n=>{ usados.add(n.id); ordenados.push(n); });
+  });
+  items.filter(n=>!usados.has(n.id)).forEach(n=>{ html += item(n); ordenados.push(n); });
+  items = ordenados;
   const sidebar = document.getElementById('sidebar');
-  sidebar.innerHTML = items.map(n=>`<div class="nav-item ${currentView===n.id?'active':''}" data-nav="${n.id}">${n.icon}${n.label}</div>`).join('');
+  sidebar.innerHTML = html;
   sidebar.querySelectorAll('.nav-item').forEach(el=>el.addEventListener('click',()=>switchView(el.getAttribute('data-nav'))));
 
   const mobileTabs = document.getElementById('mobileTabs');
@@ -2167,10 +2382,10 @@ function asisPintarHistorial(){
 
   const asisHtml = asisHistorial.map((h, hIdx)=>{
     if(h.error){
-      return `<div class="panel" style="margin-bottom:12px;border-color:#eddcc0;position:relative;">
+      return `<div class="panel" style="margin-bottom:12px;border-color:var(--amber-line);position:relative;">
         <button class="asis-cerrar asisBtnCerrar" data-i="${hIdx}" title="Cerrar esta respuesta" aria-label="Cerrar esta respuesta">&times;</button>
         <div style="font-size:13px;font-weight:600;margin-bottom:4px;padding-right:30px;">${esc(h.pregunta)}</div>
-        <div style="font-size:13px;color:#7a5316;">${esc(h.error)}</div>
+        <div style="font-size:13px;color:var(--amber-ink);">${esc(h.error)}</div>
       </div>`;
     }
     const res = h.res || {};
@@ -2183,7 +2398,7 @@ function asisPintarHistorial(){
         h.restringido ? ' <b>(solo tus áreas asignadas)</b>' : ''}</div>
 
       <div style="font-size:28px;font-weight:700;color:var(--primary);line-height:1.15;">${esc(asisRespuestaCorta(h))}</div>
-      ${h.aviso ? `<div style="margin-top:8px;font-size:12.5px;color:#7a5316;background:#FBEEDC;border-radius:8px;padding:8px 10px;">${esc(h.aviso)}</div>` : ''}
+      ${h.aviso ? `<div style="margin-top:8px;font-size:12.5px;color:var(--amber-ink);background:var(--amber-soft);border-radius:8px;padding:8px 10px;">${esc(h.aviso)}</div>` : ''}
       ${(h.sugerencias && h.sugerencias.length) ? `<div style="margin-top:10px;font-size:12.5px;color:var(--ink-soft);">
         Ese lugar no tiene bienes activos. ¿Quisiste decir?
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">${h.sugerencias.map(s=>
@@ -2260,7 +2475,7 @@ async function cargarPermisosAsistente(){
         <button class="btn btn-sm asisTogglePermiso"
                 data-email="${esc(u.email)}"
                 data-estado="${u.asistente_habilitado ? '1' : '0'}"
-                style="${u.asistente_habilitado ? 'color:var(--primary);border-color:#bcdcd2;' : ''}">
+                style="${u.asistente_habilitado ? 'color:var(--primary);border-color:var(--primary-line);' : ''}">
           ${u.asistente_habilitado ? 'Habilitado' : 'Habilitar'}
         </button>
       </div>
@@ -2513,8 +2728,8 @@ let tomaActual = null, tomaResumen = null, tomaPestana = 'encontrado';
 
 const RES_INFO = {
   encontrado:    {lbl:'Encontrados',      col:'var(--primary)',  bg:'var(--primary-soft)',  txt:'var(--primary-dark)'},
-  otro_servicio: {lbl:'De otro servicio', col:'var(--amber)',    bg:'var(--amber-soft)',    txt:'#7a5316'},
-  no_existe:     {lbl:'Sin registro',     col:'var(--rust)',     bg:'var(--rust-soft)',     txt:'#7a281f'},
+  otro_servicio: {lbl:'De otro servicio', col:'var(--amber)',    bg:'var(--amber-soft)',    txt:'var(--amber-ink)'},
+  no_existe:     {lbl:'Sin registro',     col:'var(--rust)',     bg:'var(--rust-soft)',     txt:'var(--rust-ink)'},
   repetido:      {lbl:'Repetido',         col:'var(--ink-faint)',bg:'var(--surface-alt)',   txt:'var(--ink-soft)'}
 };
 
@@ -2966,7 +3181,7 @@ function loadToma(){
           </div>
           <div style="text-align:right;">
             <button class="btn btn-sm tomaAbrirBtn" data-id="${t.id}" data-estado="${esc(t.estado||'abierta')}">${t.estado==='abierta' ? 'Continuar' : 'Ver detalle'}</button>
-            ${(session && session.rol === 'admin') ? `<button class="btn btn-sm tomaBorrarBtn" data-id="${t.id}" data-unidad="${esc(t.unidad||'')}" style="margin-left:6px;color:var(--rust);border-color:#e7cfc6;">Borrar</button>` : ''}
+            ${(session && session.rol === 'admin') ? `<button class="btn btn-sm tomaBorrarBtn" data-id="${t.id}" data-unidad="${esc(t.unidad||'')}" style="margin-left:6px;color:var(--rust);border-color:var(--rust-line);">Borrar</button>` : ''}
           </div>
         </div>
       `).join('')}
@@ -3042,7 +3257,7 @@ function tomaPintarAviso(tomaId){
   const a = tomaAviso;
   tomaAviso = null;
   fb.innerHTML = '<div class="info-note">' + a.msg +
-    ' <button class="btn btn-sm tomaDeshacerBtn" style="margin-left:8px;color:var(--rust);border-color:#e7cfc6;">Deshacer<'+'/button><'+'/div>';
+    ' <button class="btn btn-sm tomaDeshacerBtn" style="margin-left:8px;color:var(--rust);border-color:var(--rust-line);">Deshacer<'+'/button><'+'/div>';
   const b = fb.querySelector('.tomaDeshacerBtn');
   if(!b) return;
   b.addEventListener('click', async function(){
@@ -3108,7 +3323,7 @@ async function abrirTomaDetalle(tomaId, estadoConocido){
           <div style="text-align:right;">
             <div style="font-size:12px;">${it.resultado==='encontrado' ? '<span class="badge">Encontrado</span>' : it.resultado==='otro_servicio' ? ('<span class="badge">Otro servicio: ' + esc(it.unidad_sistema||'—') + '</span>') : '<span class="badge">Sin registro en el sistema</span>'}</div>
             <div style="font-size:11px;color:#888;margin-top:2px;">${it.metodo==='manual' ? 'Manual' : 'Escaneo'} — ${esc(it.registrado_por||'')}</div>
-            ${cerrada ? '' : `<button class="btn btn-sm tomaQuitarBtn" data-codigo="${esc(it.codigo||'')}" style="margin-top:6px;color:var(--rust);border-color:#e7cfc6;">Quitar</button>`}
+            ${cerrada ? '' : `<button class="btn btn-sm tomaQuitarBtn" data-codigo="${esc(it.codigo||'')}" style="margin-top:6px;color:var(--rust);border-color:var(--rust-line);">Quitar</button>`}
           </div>
         </div>
       `).join('')}
@@ -3359,7 +3574,7 @@ async function concCalcular(){
   const aviso = document.getElementById('concAviso');
   const p = concLeerFormulario();
   const err = concValidar(p);
-  const rojo = t => '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;margin:0;">' + esc(t) + '</div>';
+  const rojo = t => '<div class="info-note" style="background:var(--rust-soft);border-color:var(--rust-line);color:var(--rust-ink);margin:0;">' + esc(t) + '</div>';
   if(err){ cajas.forEach(c => c.innerHTML = ''); aviso.innerHTML = '<div style="margin-top:12px;">' + rojo(err) + '</div>'; return; }
   const yo = ++concPedido;
   aviso.innerHTML = '';
@@ -3723,7 +3938,7 @@ async function abrirDetalleDescargado(codigo){
     ];
     const ficha = ['descripcion','estado','valor_adquisicion','unidad','ubicacion','marca','modelo','serie','color','fuente','fecha_adquisicion','reporte','observacion','caracteristica'];
     document.getElementById('drawerBody').innerHTML = `
-      <div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:18px;">
+      <div class="info-note" style="background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber-ink);margin-bottom:18px;">
         Este bien fue <b>descargado del inventario</b>: no se cuenta en el inventario activo ni en los totales.
       </div>
       <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:0 0 12px;">Datos del descargo</h3>
@@ -3749,7 +3964,7 @@ async function abrirDetalleDescargado(codigo){
         else d = v ? esc(v) : '<span class="empty">No registrado</span>';
         return `<div class="field-view"><div class="fv-label">${FIELD_LABELS[k]}</div><div class="fv-value">${d}</div></div>`;
       }).join('')}
-      <div class="field-view"><div class="fv-label">Código</div><div class="fv-value mono">${esc(it.codigo)}</div></div>`;
+      <div class="field-view"><div class="fv-label">Código</div><div class="fv-value"><span class="placa">${esc(it.codigo)}</span></div></div>`;
     document.getElementById('drawerFoot').innerHTML = '';
     const vb = document.getElementById('verArchDesc');
     if(vb) vb.onclick = async ()=>{
@@ -4357,7 +4572,7 @@ async function abrirDescargoDrawer(codigosParam){
     codigos.length===1 ? 'Descargar bien' : 'Descargar ' + codigos.length + ' bienes';
   const MOTIVOS = ['Deterioro / Obsolescencia','Extravío o robo','Donación','Transferencia a otra institución','Venta o subasta','Destrucción','Otro'];
   document.getElementById('drawerBody').innerHTML = 
-    '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;margin-bottom:18px;">' +
+    '<div class="info-note" style="background:var(--rust-soft);border-color:var(--rust-line);color:var(--rust-ink);margin-bottom:18px;">' +
     (codigos.length===1
       ? 'Vas a descargar el bien <b class="mono">' + esc(codigos[0]) + '<'+'/b> del inventario.'
       : 'Vas a descargar <b>' + codigos.length.toLocaleString('en-US') + ' bienes<'+'/b> del inventario.') +
@@ -4515,7 +4730,7 @@ async function abrirTrasladoDrawer(codigosParam){
   document.getElementById('drawerTitle').textContent =
     codigos.length===1 ? 'Trasladar bien' : `Trasladar ${codigos.length} bienes`;
   document.getElementById('drawerBody').innerHTML = `
-    <div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:18px;">
+    <div class="info-note" style="background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber-ink);margin-bottom:18px;">
       ${codigos.length===1
         ? `Vas a trasladar el bien <b class="mono">${esc(codigos[0])}</b> a otro hospital.`
         : `Vas a trasladar <b>${codigos.length.toLocaleString('en-US')} bienes</b> a otro hospital.`}
@@ -4697,7 +4912,7 @@ async function loadTraslados(){
           </div>
         </div>
         <div class="row-side">
-          <span class="descargo-badge" style="background:var(--amber-soft);color:#7a5316;">Trasladado</span>
+          <span class="descargo-badge" style="background:var(--amber-soft);color:var(--amber-ink);">Trasladado</span>
           <span class="row-value">${fmtMoney(it.traslado_valor != null ? it.traslado_valor : it.valor_adquisicion)}</span>
           <span class="row-tag">${esc(it.trasladado_por||'')}</span>
         </div>
@@ -4757,7 +4972,7 @@ async function abrirDetalleTrasladado(codigo){
     ];
     const ficha = ['descripcion','estado','valor_adquisicion','unidad','ubicacion','marca','modelo','serie','color','fuente','fecha_adquisicion','reporte','observacion','caracteristica'];
     document.getElementById('drawerBody').innerHTML = `
-      <div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:18px;">
+      <div class="info-note" style="background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber-ink);margin-bottom:18px;">
         Este bien fue <b>trasladado a otro hospital</b>: no se cuenta en el inventario ni en los totales.
       </div>
       <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:0 0 12px;">Datos del traslado</h3>
@@ -4783,7 +4998,7 @@ async function abrirDetalleTrasladado(codigo){
         else d = v ? esc(v) : '<span class="empty">No registrado</span>';
         return `<div class="field-view"><div class="fv-label">${FIELD_LABELS[k]}</div><div class="fv-value">${d}</div></div>`;
       }).join('')}
-      <div class="field-view"><div class="fv-label">Código</div><div class="fv-value mono">${esc(it.codigo)}</div></div>`;
+      <div class="field-view"><div class="fv-label">Código</div><div class="fv-value"><span class="placa">${esc(it.codigo)}</span></div></div>`;
     document.getElementById('drawerFoot').innerHTML = `
       <button class="btn" id="asignarUnoBtn" style="flex:1;">${it.traslado_destino?'Cambiar destino':'Asignar destino'}</button>
       <button class="btn" id="retornarBtn" style="flex:1;">Retornar al inventario</button>`;
@@ -5009,7 +5224,7 @@ async function loadUsuarios(){
       </div>
       <div class="u-acciones">
         ${u.email !== session.email ? `<button class="btn btn-sm mfa-exigir-btn" data-email="${esc(u.email)}" data-on="${(mfaPor[u.email]&&mfaPor[u.email].obligatorio)?'1':'0'}">${(mfaPor[u.email]&&mfaPor[u.email].obligatorio)?'No exigir 2 pasos':'Exigir 2 pasos'}</button>` : ''}
-        ${(mfaPor[u.email]&&mfaPor[u.email].activo) ? `<button class="btn btn-sm mfa-quitar-btn" data-email="${esc(u.email)}" data-nombre="${esc(u.nombre||u.email)}" style="color:var(--rust);border-color:#e7cfc6;">Perdió el teléfono</button>` : ''}
+        ${(mfaPor[u.email]&&mfaPor[u.email].activo) ? `<button class="btn btn-sm mfa-quitar-btn" data-email="${esc(u.email)}" data-nombre="${esc(u.nombre||u.email)}" style="color:var(--rust);border-color:var(--rust-line);">Perdió el teléfono</button>` : ''}
         ${u.rol==='usuario' ? `<button class="btn btn-sm carga-btn" data-email="${esc(u.email)}" data-nombre="${esc(u.nombre||u.email)}" data-on="${cargaPor[u.email]?'1':'0'}">${cargaPor[u.email]?'Quitar carga desde archivo':'Permitir carga desde archivo'}</button>` : ''}
         ${locked?`<button class="btn btn-sm unlock-btn" data-email="${esc(u.email)}">Desbloquear</button>`:''}
         <button class="btn btn-sm btn-primary pw-btn" data-email="${esc(u.email)}" data-nombre="${esc(u.nombre||u.email)}">Cambiar contraseña</button>
@@ -5132,7 +5347,7 @@ async function confirmarQuitarAcceso(email, nombre){
   document.getElementById('drawerTitle').textContent = 'Quitar acceso';
   document.getElementById('drawerBody').innerHTML = `
     <div class="trash-note" style="margin:0 0 16px;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="#7a5316" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="var(--amber-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span><b>${esc(nombre)}</b> dejará de entrar a Activo Fijo y se cerrarán sus sesiones abiertas.</span>
     </div>
     <p style="font-size:13px;color:var(--ink-soft);line-height:1.5;">
@@ -5201,7 +5416,7 @@ function abrirNuevoUsuario(){
       <div class="err">No cumple los requisitos.</div>
     </div>
     <div class="trash-note" style="margin:0;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="#7a5316" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="var(--amber-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Entrégale la contraseña en persona o por un medio seguro, y pídele que la cambie al entrar.</span>
     </div>`;
   document.getElementById('drawerFoot').innerHTML = `
@@ -5294,7 +5509,7 @@ function openPasswordDrawer(targetEmail, targetNombre){
       <div class="err">Las contraseñas no coinciden.</div>
     </div>
     ${esOtro?`<div class="trash-note" style="margin:0;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="#7a5316" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex:0 0 auto;margin-top:1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="var(--amber-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Al cambiarla, se cerrarán todas las sesiones abiertas de esta persona y deberá entrar con la nueva contraseña.</span>
     </div>`:''}
   `;
@@ -5468,7 +5683,7 @@ function renderImportPreview(){
       <div style="font-size:13px;margin-bottom:6px;">
         <b>${esc(filename)}</b> — ${rows.length.toLocaleString('en-US')} artículos en el archivo
       </div>
-      ${parsedCsv.aviso ? `<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;margin:8px 0;"><b>Revisá esto antes de continuar.</b><br>${esc(parsedCsv.aviso)}</div>` : ''}
+      ${parsedCsv.aviso ? `<div class="info-note" style="background:var(--rust-soft);border-color:var(--rust-line);color:var(--rust-ink);margin:8px 0;"><b>Revisá esto antes de continuar.</b><br>${esc(parsedCsv.aviso)}</div>` : ''}
       <div id="notaReporte" style="font-size:12.5px;color:var(--ink-soft);margin-top:6px;"></div>
       <div style="font-size:12.5px;color:var(--ink-soft);">
         Campos que se compararán: ${cols.length ? cols.map(c=>`<code style="background:var(--surface-alt);padding:1px 5px;border-radius:4px;">${esc(c)}</code>`).join(' ') : '<i>ninguno</i>'}
@@ -5640,8 +5855,8 @@ async function renderSyncResult(ctx){
       </table></div>
     </div>` : ''}
 
-    ${missing ? `<div class="panel" style="margin-bottom:16px;border-color:#eddcc0;">
-      <h3 style="color:#7a5316;">${missing.toLocaleString('en-US')} artículos no aparecen en el archivo</h3>
+    ${missing ? `<div class="panel" style="margin-bottom:16px;border-color:var(--amber-line);">
+      <h3 style="color:var(--amber-ink);">${missing.toLocaleString('en-US')} artículos no aparecen en el archivo</h3>
       <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px;">
         Están en la base pero no venían en el CSV, por un valor de <b>${fmtMoney(missingValor)}</b>.
         Puede ser que se dieran de baja, o que el archivo esté incompleto.
@@ -5733,7 +5948,7 @@ function renderDrawerView(){
     else if(k==='serie'){ display = val ? `<span class="mono">${esc(val)}</span>` : '<span class="empty">No registrado</span>'; }
     else { display = val ? esc(val) : '<span class="empty">No registrado</span>'; }
     return `<div class="field-view"><div class="fv-label">${FIELD_LABELS[k]}</div><div class="fv-value">${display}</div></div>`;
-  }).join('') + `<div class="field-view"><div class="fv-label">Código</div><div class="fv-value mono">${esc(item.codigo)}</div></div>
+  }).join('') + `<div class="field-view"><div class="fv-label">Código</div><div class="fv-value"><span class="placa">${esc(item.codigo)}</span></div></div>
     <div class="fv-meta">Creado: ${item.created_at?fmtDateTime(item.created_at):'—'}${item.created_by?(' · '+esc(item.created_by)):''}<br>Última edición: ${item.updated_at?fmtDateTime(item.updated_at):'—'}${item.updated_by?(' · '+esc(item.updated_by)):''}</div>`;
 
   if(session && session.rol === 'consulta'){ document.getElementById('drawerFoot').innerHTML = ''; return; }
@@ -6369,26 +6584,26 @@ async function cargaProcesar(file){
   var caja = document.getElementById('cargaResultado');
   caja.innerHTML = spinnerHTML();
   if(typeof XLSX === 'undefined'){
-    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">No se pudo cargar el lector de Excel. Revisá tu conexión y volvé a intentar.<'+'/div>';
+    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:var(--rust-line);color:var(--rust-ink);">No se pudo cargar el lector de Excel. Revisá tu conexión y volvé a intentar.<'+'/div>';
     return;
   }
   var filas;
   try{ filas = await cargaLeerArchivo(file); }
   catch(e){
-    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">' + esc(e.message) + '<'+'/div>';
+    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:var(--rust-line);color:var(--rust-ink);">' + esc(e.message) + '<'+'/div>';
     return;
   }
   var codigos = cargaExtraerCodigos(filas);
   var descartadas = filas.length - codigos.length;
   if(codigos.length === 0){
-    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">' +
+    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:var(--rust-line);color:var(--rust-ink);">' +
       'No encontré ningún código de inventario en <b>' + esc(file.name) + '<'+'/b>. ' +
       'Los códigos tienen 17 dígitos con el formato <span class="mono">0866-153-030-07-00117<'+'/span>.<'+'/div>';
     return;
   }
   var r = await apiClasificar(codigos);
   if(!r || !r.ok){
-    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:#e8c9c0;color:#7a3116;">' + esc((r && r.error) || 'No se pudo revisar el archivo.') + '<'+'/div>';
+    caja.innerHTML = '<div class="info-note" style="background:var(--rust-soft);border-color:var(--rust-line);color:var(--rust-ink);">' + esc((r && r.error) || 'No se pudo revisar el archivo.') + '<'+'/div>';
     return;
   }
   cargaPintarResumen(file, r, descartadas);
@@ -6450,7 +6665,7 @@ function cargaPintarResumen(file, r, descartadas){
   }
   if(cargaListos.length > 2000){
     document.getElementById('cargaResultado').innerHTML +=
-      '<div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;">' +
+      '<div class="info-note" style="background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber-ink);">' +
       'El archivo trae ' + cargaListos.length.toLocaleString('en-US') + ' bienes pendientes y el máximo por operación es 2000. ' +
       'Dividí el archivo en partes y subilas una por una.<'+'/div>';
     pie.innerHTML = '<button class="btn" id="cargaCancel" style="flex:1;">Cerrar<'+'/button>';
@@ -6759,7 +6974,7 @@ async function abrirSeguridadDrawer(){
 
 function segPintarInactivo(est){
   document.getElementById('drawerBody').innerHTML =
-    (est.obligatorio ? '<div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:14px;">' +
+    (est.obligatorio ? '<div class="info-note" style="background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber-ink);margin-bottom:14px;">' +
       'El administrador dejó la verificación en dos pasos como <b>obligatoria<'+'/b> para tu cuenta.<'+'/div>' : '') +
     '<div class="info-note" style="margin-bottom:16px;">' +
     'Con esto, además de tu contraseña vas a necesitar un código de 6 dígitos que muestra una app en tu teléfono. ' +
@@ -6864,7 +7079,7 @@ function segPintarRespaldo(codigos, reciénActivado){
   document.getElementById('drawerTitle').textContent = 'Códigos de respaldo';
   document.getElementById('drawerBody').innerHTML =
     (reciénActivado ? '<div class="info-note" style="margin-bottom:14px;">La verificación en dos pasos quedó <b>activada<'+'/b>.<'+'/div>' : '') +
-    '<div class="info-note" style="background:var(--amber-soft);border-color:#eddcc0;color:#7a5316;margin-bottom:14px;">' +
+    '<div class="info-note" style="background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber-ink);margin-bottom:14px;">' +
     '<b>Guardá estos códigos ahora.<'+'/b> Son tu forma de entrar si perdés el teléfono. ' +
     'Cada uno sirve una sola vez y <b>no se van a volver a mostrar<'+'/b>.<'+'/div>' +
     '<div class="mono" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;background:var(--surface-alt);border-radius:10px;font-size:14px;letter-spacing:1px;">' +
@@ -7275,6 +7490,27 @@ async function loadTablero(){
     h.addEventListener('mouseleave', () => { tip.style.display = 'none'; h.classList.remove('activo'); });
   });
 }
+
+/* ============ TEMA CLARO / OSCURO ============
+   Automatico (sigue al telefono o la computadora), claro u oscuro. Es una
+   preferencia de cada persona en su propio navegador. */
+const TEMAS = ['auto', 'light', 'dark'];
+const TEMA_TXT = { auto: 'Tema: automático', light: 'Tema: claro', dark: 'Tema: oscuro' };
+function temaActual(){ try{ const t = localStorage.getItem('af_tema'); return TEMAS.includes(t) ? t : 'auto'; }catch(e){ return 'auto'; } }
+function aplicarTema(t){
+  if(t === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t);
+  const el = document.getElementById('umTemaTxt'); if(el) el.textContent = TEMA_TXT[t];
+}
+(function(){
+  aplicarTema(temaActual());
+  const b = document.getElementById('umTema');
+  if(b) b.addEventListener('click', function(){
+    const sig = TEMAS[(TEMAS.indexOf(temaActual()) + 1) % TEMAS.length];
+    try{ if(sig === 'auto') localStorage.removeItem('af_tema'); else localStorage.setItem('af_tema', sig); }catch(e){}
+    aplicarTema(sig);
+  });
+})();
 
 /* ============ ARRANQUE ============
    Cierra el bloque principal y arranca la aplicacion. Los modulos nuevos van ANTES de este archivo. */
