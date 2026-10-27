@@ -497,6 +497,53 @@ a{color:inherit;}
   .chip-divider{display:none;}
   .chip-row .sort-select{width:100%;}
 }
+/* ===== Tablero gerencial ===== */
+.tab-wrap{max-width:1100px;}
+.tab-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.tab-h2{margin:0;font-size:20px;color:var(--primary-dark);}
+.tab-sub{font-size:12.5px;color:var(--ink-soft);}
+.tab-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:10px;}
+@media (max-width:760px){.tab-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:400px){.tab-kpis .stat-value{font-size:20px;}}
+.tab-nota{font-size:12px;color:var(--ink-soft);margin:0 0 14px;}
+.tab-panel{margin-bottom:16px;}
+.tab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;}
+.tab-grid .tab-panel{margin-bottom:0;}
+.tab-grid{margin-bottom:16px;}
+.tab-alertas{display:flex;flex-direction:column;gap:8px;}
+.tab-alerta{display:grid;grid-template-columns:18px 64px 1fr auto;gap:8px;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line);}
+.tab-alerta:last-child{border-bottom:none;}
+.tab-alerta-ico{font-size:13px;text-align:center;}
+.tab-alerta-nivel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.tab-alerta-txt{color:var(--ink);overflow-wrap:anywhere;}
+@media (max-width:640px){.tab-alerta{grid-template-columns:18px 1fr auto;}.tab-alerta-nivel{display:none;}}
+.tab-estados{display:flex;flex-direction:column;gap:6px;}
+.tab-estado{display:grid;grid-template-columns:12px 1fr auto 56px;gap:10px;align-items:center;font-size:13.5px;padding:7px 8px;border-radius:8px;}
+.tab-estado-pct{text-align:right;color:var(--ink-soft);font-size:12px;}
+.tab-punto{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;}
+.tab-estado .tab-punto{margin:0;}
+.tab-clic{cursor:pointer;}
+.tab-clic:hover,.tab-clic:focus-visible{background:var(--surface-alt);}
+.tab-barras{display:flex;flex-direction:column;gap:9px;}
+.tab-barra{padding:4px 6px;border-radius:8px;}
+.tab-barra-txt{display:flex;justify-content:space-between;gap:2px 10px;flex-wrap:wrap;font-size:12.5px;margin-bottom:4px;}
+.tab-barra-nom{color:var(--ink);flex:1 1 150px;min-width:0;overflow-wrap:anywhere;}
+.tab-barra-txt .mono{color:var(--ink-soft);white-space:nowrap;font-size:12px;}
+.tab-barra-pista{height:8px;background:var(--surface-alt);border-radius:4px;overflow:hidden;}
+.tab-barra-relleno{height:100%;border-radius:0 4px 4px 0;}
+.tab-leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-bottom:8px;}
+.tab-graf{position:relative;}
+.tab-svg{width:100%;height:auto;display:block;}
+.tab-eje{font-size:11px;fill:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+.tab-hit{cursor:pointer;}
+.tab-hit.activo{fill:rgba(18,36,31,.05);}
+.tab-tip{display:none;position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--ink);box-shadow:0 4px 14px rgba(0,0,0,.08);white-space:nowrap;}
+.tab-tabla{width:100%;border-collapse:collapse;font-size:12.5px;}
+.tab-tabla th,.tab-tabla td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;}
+.tab-tabla th:first-child,.tab-tabla td:first-child{text-align:left;}
+.tab-tabla th{color:var(--ink-soft);font-weight:600;}
+.tab-cobertura{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft);}
+
 </style>
 </head>
 <body>
@@ -697,7 +744,7 @@ a{color:inherit;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 08:00</span>
+      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 10:00</span>
     </div>
   </div>
 
@@ -820,6 +867,9 @@ a{color:inherit;}
 
       <!-- RESUMEN -->
       <div class="view" id="view-resumen"><div class="resumen-scroll" id="resumenScroll"></div></div>
+
+      <!-- TABLERO GERENCIAL (admin y usuario) -->
+      <div class="view" id="view-tablero"><div class="admin-scroll" id="tableroScroll"></div></div>
 
       <!-- PAPELERA -->
       <div class="view" id="view-papelera">
@@ -1342,6 +1392,7 @@ function navItemsForRole(){
     return base;
   }
   const items = NAV_ITEMS.slice();
+  items.splice(1, 0, {id:'tablero', label:'Tablero', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.7"/></svg>'});
   if(puedeAsistente) items.push(itemAsistente);
   if(session && session.rol === 'admin'){
     items.push({id:'importar', label:'Importar CSV', icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'});
@@ -1389,6 +1440,7 @@ function refreshCurrentView(){
   else if(currentView==='auditoria') loadAuditoria();
   else if(currentView==='usuarios') loadUsuarios();
   else if(currentView==='respaldos') loadRespaldos();
+  else if(currentView==='tablero') loadTablero();
   else if(currentView==='importar') resetImportView();
   else if(currentView==='depreciacion') loadDeprec();
   else if(currentView==='asistente') loadAsistente();
@@ -7003,6 +7055,225 @@ async function generarRespaldoAhora(){
   }finally{
     btn.disabled = false; btn.textContent = t;
   }
+}
+
+/* ============ TABLERO GERENCIAL (ERP) ============
+   Indicadores del activo fijo en una pantalla: valores, depreciacion, estado,
+   antiguedad, servicios con mas valor, movimiento mensual y alertas. Los datos
+   salen de la funcion 'tablero' (SQL tablero_datos), que usa la misma formula de
+   depreciacion que la pantalla Depreciacion. Solo admin y usuario. */
+const FN_TABLERO = SUPABASE_URL + '/functions/v1/tablero';
+// Colores validados (dataviz): verde azulado = ingresos, naranja = bajas.
+// Estados con la paleta reservada de estado, siempre acompanados de su nombre.
+const TAB_COLOR_INGRESOS = '#178f7f', TAB_COLOR_BAJAS = '#d4612b';
+const TAB_ESTADO_COLOR = { Bueno: '#0ca30c', Regular: '#fab219', Malo: '#ec835a', Inservible: '#d03b3b' };
+const TAB_MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+async function apiTablero(){
+  try{
+    const res = await fetch(FN_TABLERO, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': session ? session.token : '' }, body: '{}' });
+    const data = await res.json();
+    if(res.status === 401){ borrarSesionGuardada(); toast('Tu sesión expiró. Inicia sesión nuevamente.', true); doLogout(true); }
+    return data;
+  }catch(e){ return { ok:false, error:'No se pudo conectar con el servidor. Revisa tu conexión.' }; }
+}
+
+function tabNum(n){ return Number(n || 0).toLocaleString('en-US'); }
+function tabPct(a, b){ if(!b) return '—'; const p = 100 * a / b; return (a > 0 && p < 0.1) ? '<0.1%' : p.toFixed(1) + '%'; }
+function tabBienes(n, uno, varios){ return Number(n) === 1 ? uno : varios; }
+function tabMesTexto(m){ const [a, mm] = String(m).split('-'); return TAB_MESES[parseInt(mm, 10) - 1] + ' ' + a.slice(2); }
+
+// Lleva al inventario con los filtros indicados (limpiando los anteriores).
+function tableroIrAInventario(cambios){
+  try{ limpiarFiltrosAvanzados(); }catch(e){}
+  Object.assign(filters, cambios, { page: 1 });
+  if(cambios.unidad){ const s = document.getElementById('fUnidad'); if(s){ if(![...s.options].some(o => o.value === cambios.unidad)){ const o = document.createElement('option'); o.value = o.textContent = cambios.unidad; s.appendChild(o); } s.value = cambios.unidad; } }
+  try{ renderChips(); }catch(e){}
+  switchView('inventario');
+}
+
+function tabTile(etiqueta, valor, sub){
+  return `<div class="stat-card"><div class="stat-label">${esc(etiqueta)}</div><div class="stat-value">${valor}</div>${sub ? `<div class="stat-sub">${sub}</div>` : ''}</div>`;
+}
+
+// Barras horizontales en HTML (una sola serie, un solo color), con etiqueta y valor visibles.
+function tabBarras(filas, opts){
+  const max = Math.max(1, ...filas.map(f => f.valor));
+  return `<div class="tab-barras">${filas.map((f, i) => `
+    <div class="tab-barra ${opts.clic ? 'tab-clic' : ''}" ${opts.clic ? `data-i="${i}" tabindex="0" role="button"` : ''} title="${esc(f.titulo || '')}">
+      <div class="tab-barra-txt"><span class="tab-barra-nom">${esc(f.nombre)}</span><span class="mono">${f.texto}</span></div>
+      <div class="tab-barra-pista"><div class="tab-barra-relleno" style="width:${Math.max(0.5, 100 * f.valor / max).toFixed(2)}%;background:${opts.color};"></div></div>
+    </div>`).join('')}</div>`;
+}
+
+// Columnas agrupadas por mes (ingresos y bajas) en SVG, con tooltip propio.
+function tabColumnas(mensual, anchoDisponible){
+  const W = Math.max(300, Math.min(900, Math.round(anchoDisponible || 640))), H = W < 520 ? 200 : 240, izq = 34, der = 8, arr = 12, aba = 26;
+  const ancho = (W - izq - der) / mensual.length;
+  const max = Math.max(1, ...mensual.map(m => Math.max(m.ingresos, m.bajas)));
+  const paso = Math.pow(10, Math.floor(Math.log10(max)));
+  const tope = Math.ceil(max / paso) * paso;
+  const y = v => arr + (H - arr - aba) * (1 - v / tope);
+  const bw = Math.max(3, Math.min(14, ancho / 2 - 4));
+  let s = `<svg viewBox="0 0 ${W} ${H}" class="tab-svg" role="img" aria-label="Ingresos y bajas por mes, últimos 12 meses">`;
+  for(let k = 0; k <= 4; k++){
+    const v = tope * k / 4, yy = y(v);
+    s += `<line x1="${izq}" x2="${W - der}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-width="1"/>`;
+    s += `<text x="${izq - 6}" y="${yy + 4}" text-anchor="end" class="tab-eje">${tabNum(Math.round(v))}</text>`;
+  }
+  const barra = (x, v, color) => {
+    if(v <= 0) return '';
+    const yy = y(v), h = (H - aba) - yy, r = Math.min(4, h, bw / 2);
+    // extremo redondeado arriba, base recta sobre el eje
+    return `<path d="M${x},${H - aba} V${yy + r} Q${x},${yy} ${x + r},${yy} H${x + bw - r} Q${x + bw},${yy} ${x + bw},${yy + r} V${H - aba} Z" fill="${color}"/>`;
+  };
+  mensual.forEach((m, i) => {
+    const cx = izq + ancho * i + ancho / 2;
+    s += barra(cx - bw - 1, m.ingresos, TAB_COLOR_INGRESOS) + barra(cx + 1, m.bajas, TAB_COLOR_BAJAS);
+    // En pantallas angostas: mes corto, uno si y otro no (el ano solo en enero).
+    const corto = ancho < 44, mm = parseInt(m.mes.slice(5), 10);
+    const etiqueta = corto ? (TAB_MESES[mm - 1] + (mm === 1 ? ' ' + m.mes.slice(2, 4) : '')) : tabMesTexto(m.mes);
+    if(!corto || i % 2 === 1) s += `<text x="${cx}" y="${H - 8}" text-anchor="middle" class="tab-eje">${etiqueta}</text>`;
+    s += `<rect x="${izq + ancho * i}" y="${arr}" width="${ancho}" height="${H - arr - aba}" fill="transparent" class="tab-hit" data-i="${i}"/>`;
+  });
+  return s + '</svg>';
+}
+
+async function loadTablero(){
+  const el = document.getElementById('tableroScroll');
+  if(!el) return;
+  el.innerHTML = spinnerHTML();
+  const r = await apiTablero();
+  if(!r || !r.ok){ el.innerHTML = emptyStateHTML('No se pudo cargar el tablero', esc((r && r.error) || '')); return; }
+  const t = r.tablero, k = t.kpi, a = t.alertas;
+  const mensual = (t.mensual || []).map(m => ({ mes: m.mes, ingresos: m.ingresos, ingresos_valor: m.ingresos_valor, descargos: m.descargos, traslados: m.traslados, bajas: m.descargos + m.traslados }));
+  const sinFechaBase = k.valor_adquisicion - k.base_depreciable;
+
+  const alertas = [
+    { n: a.inservibles.n, txt: `${tabBienes(a.inservibles.n,'bien <b>inservible</b> sigue','bienes <b>inservibles</b> siguen')} en el inventario activo (${fmtMoney(a.inservibles.valor)}). ${tabBienes(a.inservibles.n,'Es candidato','Son candidatos')} a descargo.`, ir: () => tableroIrAInventario({ estado: 'Inservible' }), nivel: 'critical' },
+    { n: a.malos.n, txt: `${tabBienes(a.malos.n,'bien','bienes')} en <b>mal estado</b> (${fmtMoney(a.malos.valor)}).`, ir: () => tableroIrAInventario({ estado: 'Malo' }), nivel: 'serious' },
+    { n: a.depreciados_en_uso, txt: `${tabBienes(a.depreciados_en_uso,'bien en buen estado ya está <b>totalmente depreciado</b>','bienes en buen estado ya están <b>totalmente depreciados</b>')} (valor en libros = 10% residual).`, ir: () => switchView('depreciacion'), nivel: 'warning' },
+    { n: a.sin_fecha, txt: `${tabBienes(a.sin_fecha,'bien','bienes')} <b>sin fecha de adquisición</b>: no se pueden depreciar ni conciliar por fecha.`, nivel: 'warning' },
+    { n: a.sin_serie_mayores, txt: `${tabBienes(a.sin_serie_mayores,'bien','bienes')} de más de $900 <b>sin número de serie</b> registrado.`, nivel: 'warning' },
+    { n: a.sin_ubicacion, txt: `${tabBienes(a.sin_ubicacion,'bien','bienes')} <b>sin ubicación</b> registrada.`, nivel: 'warning' },
+    { n: a.tomas_abiertas_30d, txt: `${tabBienes(a.tomas_abiertas_30d,'toma física <b>abierta hace más de 30 días</b>','tomas físicas <b>abiertas hace más de 30 días</b>')}.`, ir: () => switchView('toma'), nivel: 'warning' },
+    { n: a.papelera, txt: `${tabBienes(a.papelera,'artículo','artículos')} en la <b>papelera</b>.`, ir: () => switchView('papelera'), nivel: 'info' },
+  ].filter(x => x.n > 0);
+  const ICONO = { critical: '⛔', serious: '▲', warning: '●', info: 'ℹ' };
+  const NOMBRE_NIVEL = { critical: 'Crítico', serious: 'Alto', warning: 'Revisar', info: 'Aviso' };
+  const COLOR_NIVEL = { critical: '#d03b3b', serious: '#ec835a', warning: '#b9761f', info: 'var(--ink-faint)' };
+
+  const totalEstado = (t.por_estado || []).reduce((s, e) => s + e.n, 0);
+  const cobertura = a.servicios_total ? Math.round(100 * a.servicios_con_toma_anio / a.servicios_total) : 0;
+
+  el.innerHTML = `
+  <div class="import-wrap tab-wrap">
+    <div class="tab-cab">
+      <div><h2 class="tab-h2">Tablero gerencial</h2>
+      <div class="tab-sub">Activo fijo del hospital · actualizado ${fmtDateTime(t.generado)}</div></div>
+      <button class="btn btn-sm" id="tabRefrescar">Actualizar</button>
+    </div>
+
+    <div class="tab-kpis">
+      ${tabTile('Bienes activos', tabNum(k.activos), `${tabNum(k.descargados)} descargados · ${tabNum(k.trasladados)} trasladados`)}
+      ${tabTile('Valor de adquisición', fmtMoneyShort(k.valor_adquisicion), fmtMoney(k.valor_adquisicion))}
+      ${tabTile('Valor en libros', fmtMoneyShort(k.valor_libros), `calculado al 18% anual · ${fmtMoney(k.valor_libros)}`)}
+      ${tabTile('Depreciación acumulada', tabPct(k.dep_acumulada, k.base_depreciable), `${fmtMoney(k.dep_acumulada)} de la base depreciable`)}
+      ${tabTile('Totalmente depreciados', tabNum(k.totalmente_depreciados), tabPct(k.totalmente_depreciados, k.activos) + ' de los activos')}
+      ${tabTile('En mal estado o inservibles', tabNum(k.mal_estado_n), fmtMoney(k.mal_estado_valor))}
+    </div>
+    ${sinFechaBase > 0 ? `<div class="tab-nota">El valor en libros y la depreciación se calculan sobre los bienes con fecha de adquisición (${fmtMoney(k.base_depreciable)}). Quedan fuera ${fmtMoney(sinFechaBase)} de bienes sin fecha.</div>` : ''}
+
+    <div class="panel tab-panel">
+      <h3>Alertas</h3>
+      ${alertas.length ? `<div class="tab-alertas">${alertas.map((x, i) => `
+        <div class="tab-alerta">
+          <span class="tab-alerta-ico" style="color:${COLOR_NIVEL[x.nivel]}" aria-hidden="true">${ICONO[x.nivel]}</span>
+          <span class="tab-alerta-nivel" style="color:${COLOR_NIVEL[x.nivel]}">${NOMBRE_NIVEL[x.nivel]}</span>
+          <span class="tab-alerta-txt"><b class="mono">${tabNum(x.n)}</b> ${x.txt}</span>
+          ${x.ir ? `<button class="btn btn-sm tabIr" data-i="${i}">Ver</button>` : ''}
+        </div>`).join('')}</div>` : '<div class="tab-sub">Sin alertas.</div>'}
+    </div>
+
+    <div class="tab-grid">
+      <div class="panel tab-panel">
+        <h3>Estado de los bienes</h3>
+        <div class="tab-estados">${(t.por_estado || []).map(e => `
+          <div class="tab-estado ${TAB_ESTADO_COLOR[e.estado] ? 'tab-clic' : ''}" data-estado="${esc(e.estado)}" ${TAB_ESTADO_COLOR[e.estado] ? 'tabindex="0" role="button"' : ''}>
+            <span class="tab-punto" style="background:${TAB_ESTADO_COLOR[e.estado] || 'var(--ink-faint)'}"></span>
+            <span class="tab-estado-nom">${esc(e.estado)}</span>
+            <span class="mono">${tabNum(e.n)}</span>
+            <span class="tab-estado-pct">${tabPct(e.n, totalEstado)}</span>
+          </div>`).join('')}</div>
+      </div>
+      <div class="panel tab-panel">
+        <h3>Antigüedad (por fecha de adquisición)</h3>
+        ${tabBarras((t.antiguedad || []).map(x => ({ nombre: x.tramo, valor: x.n, texto: `${tabNum(x.n)} · ${fmtMoneyShort(x.valor)}`, titulo: `${x.tramo}: ${tabNum(x.n)} bienes, ${fmtMoney(x.valor)}` })), { color: TAB_COLOR_INGRESOS })}
+      </div>
+    </div>
+
+    <div class="panel tab-panel">
+      <h3>Los 10 servicios con más valor</h3>
+      <div class="tab-sub" style="margin:-8px 0 10px;">Toca un servicio para ver sus bienes.</div>
+      ${tabBarras((t.servicios || []).map(x => ({ nombre: x.unidad, valor: Number(x.valor), texto: `${fmtMoneyShort(x.valor)} · ${tabNum(x.n)} bienes${x.mal ? ` · ${tabNum(x.mal)} mal estado` : ''}`, titulo: `${x.unidad}: ${fmtMoney(x.valor)}` })), { color: TAB_COLOR_INGRESOS, clic: true })}
+    </div>
+
+    <div class="panel tab-panel">
+      <div class="tab-cab" style="margin-bottom:6px;">
+        <h3 style="margin:0;">Ingresos y bajas por mes</h3>
+        <button class="btn btn-sm" id="tabVerTabla">Ver como tabla</button>
+      </div>
+      <div class="tab-leyenda">
+        <span><span class="tab-punto" style="background:${TAB_COLOR_INGRESOS}"></span>Ingresos (por fecha de adquisición)</span>
+        <span><span class="tab-punto" style="background:${TAB_COLOR_BAJAS}"></span>Bajas: descargos y traslados con fecha oficial</span>
+      </div>
+      <div class="tab-graf" id="tabGraf">${tabColumnas(mensual, el.clientWidth - (el.clientWidth < 700 ? 82 : 300))}<div class="tab-tip" id="tabTip"></div></div>
+      <div id="tabTabla" style="display:none;overflow-x:auto;">
+        <table class="tab-tabla"><thead><tr><th>Mes</th><th>Ingresos</th><th>Valor ingresado</th><th>Descargos</th><th>Traslados</th></tr></thead>
+        <tbody>${mensual.map(m => `<tr><td>${tabMesTexto(m.mes)}</td><td class="mono">${tabNum(m.ingresos)}</td><td class="mono">${fmtMoney(m.ingresos_valor)}</td><td class="mono">${tabNum(m.descargos)}</td><td class="mono">${tabNum(m.traslados)}</td></tr>`).join('')}</tbody></table>
+      </div>
+      <div class="tab-nota" style="margin-top:8px;">Solo se cuentan las bajas con fecha oficial. Los descargos y traslados históricos se cargaron sin ella, por eso no aparecen por mes.</div>
+    </div>
+
+    <div class="panel tab-panel">
+      <h3>Toma física este año</h3>
+      <div class="tab-cobertura"><div class="tab-barra-pista" style="flex:1;"><div class="tab-barra-relleno" style="width:${Math.max(0.5, cobertura)}%;background:${TAB_COLOR_INGRESOS};"></div></div>
+      <span class="mono">${tabNum(a.servicios_con_toma_anio)} de ${tabNum(a.servicios_total)} servicios (${cobertura}%)</span></div>
+    </div>
+  </div>`;
+
+  document.getElementById('tabRefrescar').addEventListener('click', loadTablero);
+  el.querySelectorAll('.tabIr').forEach(b => b.addEventListener('click', () => alertas[parseInt(b.getAttribute('data-i'), 10)].ir()));
+  const servicios = t.servicios || [];
+  el.querySelectorAll('.tab-barras .tab-clic').forEach(b => {
+    const ir = () => tableroIrAInventario({ unidad: servicios[parseInt(b.getAttribute('data-i'), 10)].unidad });
+    b.addEventListener('click', ir); b.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); ir(); } });
+  });
+  el.querySelectorAll('.tab-estado.tab-clic').forEach(b => {
+    const ir = () => tableroIrAInventario({ estado: b.getAttribute('data-estado') });
+    b.addEventListener('click', ir); b.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); ir(); } });
+  });
+  document.getElementById('tabVerTabla').addEventListener('click', function(){
+    const tabla = document.getElementById('tabTabla'), graf = document.getElementById('tabGraf');
+    const verTabla = tabla.style.display === 'none';
+    tabla.style.display = verTabla ? '' : 'none'; graf.style.display = verTabla ? 'none' : '';
+    this.textContent = verTabla ? 'Ver como gráfico' : 'Ver como tabla';
+  });
+  const tip = document.getElementById('tabTip'), graf = document.getElementById('tabGraf');
+  graf.querySelectorAll('.tab-hit').forEach(h => {
+    const m = mensual[parseInt(h.getAttribute('data-i'), 10)];
+    const mostrar = (ev) => {
+      tip.innerHTML = `<b>${tabMesTexto(m.mes)}</b><br><span class="tab-punto" style="background:${TAB_COLOR_INGRESOS}"></span>Ingresos: ${tabNum(m.ingresos)} (${fmtMoneyShort(m.ingresos_valor)})<br><span class="tab-punto" style="background:${TAB_COLOR_BAJAS}"></span>Bajas: ${tabNum(m.bajas)}${m.bajas ? ` (${tabNum(m.descargos)} desc. · ${tabNum(m.traslados)} trasl.)` : ''}`;
+      const caja = graf.getBoundingClientRect(), r2 = h.getBoundingClientRect();
+      tip.style.display = 'block';
+      let x = r2.left - caja.left + r2.width / 2 - tip.offsetWidth / 2;
+      tip.style.left = Math.max(0, Math.min(caja.width - tip.offsetWidth, x)) + 'px';
+      tip.style.top = '0px';
+      h.classList.add('activo');
+    };
+    h.addEventListener('mouseenter', mostrar); h.addEventListener('click', mostrar);
+    h.addEventListener('mouseleave', () => { tip.style.display = 'none'; h.classList.remove('activo'); });
+  });
 }
 
 /* ============ ARRANQUE ============
