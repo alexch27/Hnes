@@ -944,7 +944,7 @@ h1,h2,h3{letter-spacing:-.015em;}
     </button>
     <div class="um-sep"></div>
     <div style="padding:8px 12px;font-size:11px;color:var(--ink-faint);line-height:1.5;">
-      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 12:00</span>
+      Versión de la página<br><span class="mono" id="umVersion">27/10/2026 14:00</span>
     </div>
   </div>
 
@@ -4052,6 +4052,9 @@ async function exportarDescargados(){
 /* ============ ESCÁNER CON CÁMARA ============ */
 const ZXING_CDN = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
 
+// Acta adjunta del descargo o traslado en curso. Faltaba declararla: con
+// "use strict" el formulario de descargo fallaba y nunca llegaba al servidor.
+let archivoDescargo = null;
 let scanCtx = null;
 let scanStream = null;
 let scanTimer = null;
